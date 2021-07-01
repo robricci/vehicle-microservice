@@ -1,5 +1,6 @@
 package it.unisannio.vehicle.model;
 
+import it.unisannio.vehicle.dto.PickPoint;
 import it.unisannio.vehicle.dto.internal.Coordinate;
 import it.unisannio.vehicle.dto.internal.Station;
 import org.springframework.data.annotation.Id;
@@ -17,15 +18,17 @@ public class VehicleRide implements Serializable {
     private String id;
     private String vehicleId;
     private Integer availableSeats;
+    // private Station location; // ultima stazione in cui è stato rilevato il veicolo
     private Coordinate location;
     private Date startDate = new Date();
     private Date endDate;
     private List<Station> route;
-    private List<Integer> pickPoint;
+    // distinguere tra pickUp e pickDown
+    private List<PickPoint> pickPoints;
 
     public VehicleRide() {}
 
-    public VehicleRide(String id, String vehicleId, Integer availableSeats, Coordinate location, Date startDate, Date endDate, List<Station> route, List<Integer> pickPoint) {
+    public VehicleRide(String id, String vehicleId, Integer availableSeats, Coordinate location, Date startDate, Date endDate, List<Station> route, List<PickPoint> pickPoints) {
         this.id = id;
         this.vehicleId = vehicleId;
         this.availableSeats = availableSeats;
@@ -33,7 +36,7 @@ public class VehicleRide implements Serializable {
         this.startDate = startDate;
         this.endDate = endDate;
         this.route = route;
-        this.pickPoint = pickPoint;
+        this.pickPoints = pickPoints;
     }
 
     public String getId() {
@@ -92,11 +95,11 @@ public class VehicleRide implements Serializable {
         this.route = route;
     }
 
-    public List<Integer> getPickPoint() {
-        return pickPoint;
+    public List<PickPoint> getPickPoints() {
+        return pickPoints;
     }
 
-    public void setPickPoint(List<Integer> pickPoint) {
-        this.pickPoint = pickPoint;
+    public void setPickPoints(List<PickPoint> pickPoints) {
+        this.pickPoints = pickPoints;
     }
 }

@@ -25,7 +25,7 @@ public class VehicleDTO implements Serializable {
     private Date startDate;
     private Date endDate;
     private List<Station> route;
-    private List<Integer> pickPoint;
+    private List<PickPoint> pickPoint;
 
     public VehicleDTO() { }
 
@@ -50,7 +50,7 @@ public class VehicleDTO implements Serializable {
         this.startDate = vehicleRide.getStartDate();
         this.endDate = vehicleRide.getEndDate();
         this.route = vehicleRide.getRoute();
-        this.pickPoint = vehicleRide.getPickPoint();
+        this.pickPoint = vehicleRide.getPickPoints();
     }
 
     public static List<VehicleDTO> convert(List<Vehicle> vehicleList) {
@@ -157,11 +157,11 @@ public class VehicleDTO implements Serializable {
         this.route = route;
     }
 
-    public List<Integer> getPickPoint() {
+    public List<PickPoint> getPickPoint() {
         return pickPoint;
     }
 
-    public void setPickPoint(List<Integer> pickPoint) {
+    public void setPickPoint(List<PickPoint> pickPoint) {
         this.pickPoint = pickPoint;
     }
 }

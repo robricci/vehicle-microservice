@@ -42,7 +42,7 @@ public class VehicleService {
                 vehicleDTO.setStartDate(v.getStartDate());
                 vehicleDTO.setEndDate(v.getEndDate());
                 vehicleDTO.setRoute(v.getRoute());
-                vehicleDTO.setPickPoint(v.getPickPoint());
+                vehicleDTO.setPickPoint(v.getPickPoints());
             }
         }
         return vehicleDTO;

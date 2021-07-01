@@ -15,7 +15,7 @@ import java.util.List;
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 @Component
-@Path("/vehicle")
+@Path("/vehicles")
 public class VehicleController {
 
     private VehicleService vehicleService;
