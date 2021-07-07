@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import it.unisannio.vehicle.dto.internal.Coordinate;
 import it.unisannio.vehicle.dto.internal.Station;
 import it.unisannio.vehicle.model.Vehicle;
-import it.unisannio.vehicle.model.VehicleRide;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -19,11 +18,12 @@ public class VehicleDTO implements Serializable {
     private Integer waitingTimeTarget;
     private Integer occupancyTarget;
     private Integer inertialTimeTarget;
-    private Integer totalAvailableSeats;
-    private Integer availableSeats;
     private Coordinate location;
+    private Integer totalAvailableSeats;
+    private Integer occupiedSeats;
+    private Date creationDate;
+
     private Date startDate;
-    private Date endDate;
     private List<Station> route;
     private List<PickPoint> pickPoint;
 
@@ -36,21 +36,15 @@ public class VehicleDTO implements Serializable {
         this.waitingTimeTarget = vehicle.getWaitingTimeTarget();
         this.occupancyTarget = vehicle.getOccupancyTarget();
         this.inertialTimeTarget = vehicle.getInertialTimeTarget();
-    }
+        this.location = vehicle.getLocation();
+        this.creationDate = vehicle.getCreationDate();
+        this.occupiedSeats = vehicle.getOccupiedSeats();
 
-    public VehicleDTO(Vehicle vehicle, VehicleRide vehicleRide) {
-        this.id = vehicle.getId();
-        this.licenseId = vehicle.getLicenseId();
-        this.totalAvailableSeats = vehicle.getTotalAvailableSeats();
-        this.waitingTimeTarget = vehicle.getWaitingTimeTarget();
-        this.occupancyTarget = vehicle.getOccupancyTarget();
-        this.inertialTimeTarget = vehicle.getInertialTimeTarget();
-        this.availableSeats = vehicleRide.getAvailableSeats();
-        this.location = vehicleRide.getLocation();
-        this.startDate = vehicleRide.getStartDate();
-        this.endDate = vehicleRide.getEndDate();
-        this.route = vehicleRide.getRoute();
-        this.pickPoint = vehicleRide.getPickPoints();
+        if (vehicle.getRide() != null) {
+            this.startDate = vehicle.getRide().getStartDate();
+            this.route = vehicle.getRide().getRoute();
+            this.pickPoint = vehicle.getRide().getPickPoints();
+        }
     }
 
     public static List<VehicleDTO> convert(List<Vehicle> vehicleList) {
@@ -63,10 +57,6 @@ public class VehicleDTO implements Serializable {
 
     public static VehicleDTO convert(Vehicle vehicle) {
         return new VehicleDTO(vehicle);
-    }
-
-    public static VehicleDTO convert(Vehicle vehicle, VehicleRide vehicleRide) {
-        return new VehicleDTO(vehicle, vehicleRide);
     }
 
     public String getId() {
@@ -109,22 +99,6 @@ public class VehicleDTO implements Serializable {
         this.inertialTimeTarget = inertialTimeTarget;
     }
 
-    public Integer getTotalAvailableSeats() {
-        return totalAvailableSeats;
-    }
-
-    public void setTotalAvailableSeats(Integer totalAvailableSeats) {
-        this.totalAvailableSeats = totalAvailableSeats;
-    }
-
-    public Integer getAvailableSeats() {
-        return availableSeats;
-    }
-
-    public void setAvailableSeats(Integer availableSeats) {
-        this.availableSeats = availableSeats;
-    }
-
     public Coordinate getLocation() {
         return location;
     }
@@ -133,20 +107,36 @@ public class VehicleDTO implements Serializable {
         this.location = location;
     }
 
+    public Integer getTotalAvailableSeats() {
+        return totalAvailableSeats;
+    }
+
+    public void setTotalAvailableSeats(Integer totalAvailableSeats) {
+        this.totalAvailableSeats = totalAvailableSeats;
+    }
+
+    public Integer getOccupiedSeats() {
+        return occupiedSeats;
+    }
+
+    public void setOccupiedSeats(Integer occupiedSeats) {
+        this.occupiedSeats = occupiedSeats;
+    }
+
+    public Date getCreationDate() {
+        return creationDate;
+    }
+
+    public void setCreationDate(Date creationDate) {
+        this.creationDate = creationDate;
+    }
+
     public Date getStartDate() {
         return startDate;
     }
 
     public void setStartDate(Date startDate) {
         this.startDate = startDate;
-    }
-
-    public Date getEndDate() {
-        return endDate;
-    }
-
-    public void setEndDate(Date endDate) {
-        this.endDate = endDate;
     }
 
     public List<Station> getRoute() {

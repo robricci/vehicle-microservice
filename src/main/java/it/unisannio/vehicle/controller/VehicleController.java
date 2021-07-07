@@ -26,8 +26,8 @@ public class VehicleController {
     }
 
     @GET
-    public Response getStaticVehiclesInfo() {
-        List<VehicleDTO> vehicles = this.vehicleService.getStaticVehiclesInfo();
+    public Response getVehiclesInfo() {
+        List<VehicleDTO> vehicles = this.vehicleService.getVehiclesInfo();
         return Response.ok(vehicles).build();
     }
 
