@@ -14,6 +14,7 @@ public interface VehicleRepository extends MongoRepository<Vehicle, String> {
     @Query("{ occupiedSeats: 0 }")
     List<Vehicle> getAllStoppedVehicles();
 
-    @Query("{ 'ride.route.nodeId': { $in: ?0 } }")
-    List<Vehicle> getVehiclesInRouteWithNodeIds(List<Integer> ids);
+    @Query(value = "{ $where: 'this.occupiedSeats < this.totalAvailableSeats', 'ride.route.nodeId': { $all: ?0 }}",
+            sort = "{ 'occupiedSeats': -1 }")
+    List<Vehicle> findRouteByNodeIdsAndAvailableSeatsAndOrderByOccupiedSeatsDesc(List<Integer> ids);
 }

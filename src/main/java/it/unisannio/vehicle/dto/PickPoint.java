@@ -1,37 +1,62 @@
 package it.unisannio.vehicle.dto;
 
-import it.unisannio.vehicle.dto.internal.Station;
-
 public class PickPoint {
 
     public enum Status {WAIT, ONBOARDED, RELEASED}
 
-    private Station source;
-    private Station destination;
+    private String tripId;
+    private String jmsCorrelationId;
+    private Integer sourceNodeId;
+    private Integer destinationNodeId;
     private Status status;
 
     public PickPoint() { }
 
-    public PickPoint(Station source, Station destination, Status status) {
-        this.source = source;
-        this.destination = destination;
+    public PickPoint(String tripId, Integer sourceNodeId, Integer destinationNodeId, String jmsCorrelationId) {
+        this.tripId = tripId;
+        this.sourceNodeId = sourceNodeId;
+        this.destinationNodeId = destinationNodeId;
+        this.jmsCorrelationId = jmsCorrelationId;
+        this.status = Status.WAIT;
+    }
+
+    public PickPoint(Integer sourceNodeId, Integer destinationNodeId, Status status, String jmsCorrelationId) {
+        this.sourceNodeId = sourceNodeId;
+        this.destinationNodeId = destinationNodeId;
+        this.jmsCorrelationId = jmsCorrelationId;
         this.status = status;
     }
 
-    public Station getSource() {
-        return source;
+    public String getTripId() {
+        return tripId;
     }
 
-    public void setSource(Station source) {
-        this.source = source;
+    public void setTripId(String tripId) {
+        this.tripId = tripId;
     }
 
-    public Station getDestination() {
-        return destination;
+    public String getJmsCorrelationId() {
+        return jmsCorrelationId;
     }
 
-    public void setDestination(Station destination) {
-        this.destination = destination;
+    public void setJmsCorrelationId(String jmsCorrelationId) {
+        this.jmsCorrelationId = jmsCorrelationId;
+    }
+
+    public Integer getSourceNodeId() {
+        return sourceNodeId;
+    }
+
+    public void setSourceNodeId(Integer sourceNodeId) {
+        this.sourceNodeId = sourceNodeId;
+    }
+
+    public Integer getDestinationNodeId() {
+        return destinationNodeId;
+    }
+
+    public void setDestinationNodeId(Integer destinationNodeId) {
+        this.destinationNodeId = destinationNodeId;
     }
 
     public Status getStatus() {

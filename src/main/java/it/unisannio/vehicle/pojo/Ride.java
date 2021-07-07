@@ -12,6 +12,7 @@ public class Ride implements Serializable {
 
     private List<Station> route;
     private List<PickPoint> pickPoints;
+    private boolean moving;
     private Date startDate;
 
 
@@ -24,9 +25,10 @@ public class Ride implements Serializable {
         this.route = route;
     }
 
-    public Ride(List<Station> route, List<PickPoint> pickPoints, Date startDate) {
+    public Ride(List<Station> route, List<PickPoint> pickPoints, boolean moving, Date startDate) {
         this.route = route;
         this.pickPoints = pickPoints;
+        this.moving = moving;
         this.startDate = startDate;
     }
 
@@ -44,6 +46,14 @@ public class Ride implements Serializable {
 
     public void setPickPoints(List<PickPoint> pickPoints) {
         this.pickPoints = pickPoints;
+    }
+
+    public boolean isMoving() {
+        return moving;
+    }
+
+    public void setMoving(boolean moving) {
+        this.moving = moving;
     }
 
     public Date getStartDate() {

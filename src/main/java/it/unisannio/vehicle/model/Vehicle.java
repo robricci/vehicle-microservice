@@ -1,5 +1,6 @@
 package it.unisannio.vehicle.model;
 
+import it.unisannio.vehicle.dto.PickPoint;
 import it.unisannio.vehicle.dto.internal.Coordinate;
 import it.unisannio.vehicle.pojo.Ride;
 import org.springframework.data.annotation.Id;
@@ -131,5 +132,22 @@ public class Vehicle implements Serializable {
 
     public void setRide(Ride ride) {
         this.ride = ride;
+    }
+
+    public void incrementOccupiedSeat() {
+        this.occupiedSeats++;
+    }
+
+    public int getAvailableSeats() {
+        return this.getTotalAvailableSeats() - this.getOccupiedSeats();
+    }
+
+    public void addPickPoint(PickPoint pickPoint) {
+        this.ride.getPickPoints().add(pickPoint);
+        this.incrementOccupiedSeat();
+    }
+
+    public boolean isOccupancyTargetReached() {
+        return this.occupiedSeats >= this.occupancyTarget;
     }
 }
