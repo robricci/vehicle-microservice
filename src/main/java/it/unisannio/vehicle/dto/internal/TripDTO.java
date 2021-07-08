@@ -6,16 +6,11 @@ import java.util.Date;
 
 public class TripDTO implements Serializable {
 
-    public enum Status {
-        WAIT, IN_PROGRESS, DONE
-    }
-
     private String id;
     private Integer source;
     private Integer destination;
     private Date requestDate;
     private Integer vehicleId;
-    private Status status;
 
     public TripDTO() {}
 
@@ -57,13 +52,5 @@ public class TripDTO implements Serializable {
 
     public void setVehicleId(Integer vehicleId) {
         this.vehicleId = vehicleId;
-    }
-
-    public Status getStatus() {
-        return status;
-    }
-
-    public void setStatus(Status status) {
-        this.status = status;
     }
 }

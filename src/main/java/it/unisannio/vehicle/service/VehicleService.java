@@ -98,7 +98,7 @@ public class VehicleService {
         }
     }
 
-    public VehicleStatus requestAssignment(TripDTO trip, String tripJMSCorrelationId) {
+    public VehicleStatus requestAssignment(TripDTO trip) {
         VehicleStatus vehicleStatus = null;
 
         // Veicoli che appartengono alla rotta del trip, con posti disponibili e ordinati per posti occupati in modo decrescente
@@ -109,7 +109,7 @@ public class VehicleService {
         if (vehicleList.size() > 0) {
             for (Vehicle vehicle : vehicleList) {
                 if (srcAndDestInPickPoints(vehicle.getRide().getPickPoints(), trip.getSource(), trip.getDestination())) {
-                    this.updatePickPointForVehicle(vehicle, trip, tripJMSCorrelationId);
+                    this.updatePickPointForVehicle(vehicle, trip);
                     vehicleStatus = this.prepareVehicleStatusObject(vehicle);
                     vehicleFound = true;
                     break;
@@ -117,7 +117,7 @@ public class VehicleService {
             }
             // non è stato trovato un veicolo ottimo, assegnamo il primo con posti occupati maggiore (che avrà posti diponibili per certo)
             if (!vehicleFound) {
-                this.updatePickPointForVehicle(vehicleList.get(0), trip, tripJMSCorrelationId);
+                this.updatePickPointForVehicle(vehicleList.get(0), trip);
                 vehicleStatus = this.prepareVehicleStatusObject(vehicleList.get(0));
             }
         } else {
@@ -126,8 +126,8 @@ public class VehicleService {
         return vehicleStatus;
     }
 
-    private void updatePickPointForVehicle(Vehicle vehicle, TripDTO trip, String tripJMSCorrelationId) {
-        vehicle.addPickPoint(new PickPoint(trip.getId(), trip.getSource(), trip.getDestination(), tripJMSCorrelationId));
+    private void updatePickPointForVehicle(Vehicle vehicle, TripDTO trip) {
+        vehicle.addPickPoint(new PickPoint(trip.getId(), trip.getSource(), trip.getDestination()));
         this.vehicleRepository.save(vehicle);
     }
 

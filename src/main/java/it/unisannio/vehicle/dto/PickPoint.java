@@ -5,25 +5,22 @@ public class PickPoint {
     public enum Status {WAIT, ONBOARDED, RELEASED}
 
     private String tripId;
-    private String jmsCorrelationId;
     private Integer sourceNodeId;
     private Integer destinationNodeId;
     private Status status;
 
     public PickPoint() { }
 
-    public PickPoint(String tripId, Integer sourceNodeId, Integer destinationNodeId, String jmsCorrelationId) {
+    public PickPoint(String tripId, Integer sourceNodeId, Integer destinationNodeId) {
         this.tripId = tripId;
         this.sourceNodeId = sourceNodeId;
         this.destinationNodeId = destinationNodeId;
-        this.jmsCorrelationId = jmsCorrelationId;
         this.status = Status.WAIT;
     }
 
-    public PickPoint(Integer sourceNodeId, Integer destinationNodeId, Status status, String jmsCorrelationId) {
+    public PickPoint(Integer sourceNodeId, Integer destinationNodeId, Status status) {
         this.sourceNodeId = sourceNodeId;
         this.destinationNodeId = destinationNodeId;
-        this.jmsCorrelationId = jmsCorrelationId;
         this.status = status;
     }
 
@@ -33,14 +30,6 @@ public class PickPoint {
 
     public void setTripId(String tripId) {
         this.tripId = tripId;
-    }
-
-    public String getJmsCorrelationId() {
-        return jmsCorrelationId;
-    }
-
-    public void setJmsCorrelationId(String jmsCorrelationId) {
-        this.jmsCorrelationId = jmsCorrelationId;
     }
 
     public Integer getSourceNodeId() {

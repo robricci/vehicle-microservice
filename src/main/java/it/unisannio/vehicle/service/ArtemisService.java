@@ -33,21 +33,17 @@ public class ArtemisService {
         this.vehicleService = vehicleService;
     }
 
-    public void sendTripNotification(TripNotificationDTO tripNotification, String jmsCorrelationId){
-        jmsTemplate.convertAndSend(tripConfirmationTopic, tripNotification, message -> {
-            message.setJMSCorrelationID(jmsCorrelationId);
-            return message;
-        });
+    public void sendTripNotification(TripNotificationDTO tripNotification){
+        jmsTemplate.convertAndSend(tripConfirmationTopic, tripNotification);
     }
 
     @JmsListener(destination = "${jms.topic.trip-request}")
     private void receive(Message message) throws JMSException {
-        String tripJMSCorrelationId = message.getJMSCorrelationID();
         // TODO getBody: error decoding
         TripDTO tripDTO = message.getBody(TripDTO.class);
         TripNotificationDTO tripNotification;
 
-        VehicleStatus vehicleStatus = this.vehicleService.requestAssignment(tripDTO, tripJMSCorrelationId);
+        VehicleStatus vehicleStatus = this.vehicleService.requestAssignment(tripDTO);
         switch (vehicleStatus.getStatus()) {
             case READY_TO_START:
                 // we can send a TripNotification for each request (PickPoints of vehicle)
@@ -57,7 +53,7 @@ public class ArtemisService {
                     tripNotification.setVehicleLicenseId(vehicleStatus.getVehicle().getLicenseId());
                     tripNotification.setPickUpNodeId(pickPoint.getSourceNodeId());
                     tripNotification.setStatus(TripNotificationDTO.Status.APPROVED);
-                    this.sendTripNotification(tripNotification, pickPoint.getJmsCorrelationId());
+                    this.sendTripNotification(tripNotification);
                 }
 
                 // TODO avvertire il guidatore della partenza (inviare msg in websocket)
@@ -70,11 +66,10 @@ public class ArtemisService {
                 tripNotification.setVehicleLicenseId(vehicleStatus.getVehicle().getLicenseId());
                 tripNotification.setPickUpNodeId(tripDTO.getSource());
                 tripNotification.setStatus(TripNotificationDTO.Status.APPROVED);
-                this.sendTripNotification(tripNotification, tripJMSCorrelationId);
+                this.sendTripNotification(tripNotification);
                 break;
             case FULL:
-                this.sendTripNotification(
-                        new TripNotificationDTO(tripDTO.getId(), TripNotificationDTO.Status.REJECTED), tripJMSCorrelationId);
+                this.sendTripNotification(new TripNotificationDTO(tripDTO.getId(), TripNotificationDTO.Status.REJECTED));
                 break;
             default:
                 // nothing;
