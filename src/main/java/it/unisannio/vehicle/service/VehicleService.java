@@ -4,9 +4,7 @@ import it.unisannio.vehicle.Utils;
 import it.unisannio.vehicle.dto.InsertVehicleDTO;
 import it.unisannio.vehicle.dto.PickPoint;
 import it.unisannio.vehicle.dto.VehicleDTO;
-import it.unisannio.vehicle.dto.internal.RouteStatsDTO;
-import it.unisannio.vehicle.dto.internal.StatisticsDTO;
-import it.unisannio.vehicle.dto.internal.TripDTO;
+import it.unisannio.vehicle.dto.internal.*;
 import it.unisannio.vehicle.model.Vehicle;
 import it.unisannio.vehicle.pojo.VehicleStatus;
 import it.unisannio.vehicle.pojo.Ride;
@@ -59,39 +57,44 @@ public class VehicleService {
         StatisticsDTO statistics = this.tripService.getTripStatistics();
         List<RouteStatsDTO> routeStatsList = statistics.getRouteStatsList();
         List<Vehicle> vehicleList = this.vehicleRepository.getAllStoppedVehicles();
-        int totalVehicles = vehicleList.size();
+        final int totalVehicles = vehicleList.size();
+        int numberOfAvailableVehicles = totalVehicles;
         int vehicleElem = 0;
         Ride ride;
         if (routeStatsList != null && totalVehicles > 0) {
-            if (totalVehicles <= routeStatsList.size()) {
-                for (RouteStatsDTO routeStats : routeStatsList) {
+            for (RouteStatsDTO routeStats : routeStatsList) {
+                if (numberOfAvailableVehicles == 0) break;
+
+                if (routeStats.getRequests() == 0) {
                     ride = new Ride(Utils.convertStationStatsDtoListToStationList(routeStats.getStations()));
+                    ride.setAssignedStation(ride.getRoute().get(0));
                     vehicleList.get(vehicleElem).setRide(ride);
                     this.vehicleRepository.save(vehicleList.get(vehicleElem));
                     vehicleElem++;
-                    if (--totalVehicles == 0) break;
-                }
-            } else { // # vehicles > # routes
+                    numberOfAvailableVehicles--;
+                } else {
+                    int p = routeStats.getRequests() / statistics.getAllTripRequests() * 100;
+                    // vehiclesToAssignAtRoute: number of vehicles with the same route
+                    final int vehiclesToAssignAtRoute = p * totalVehicles / 100;
+                    ride = new Ride(Utils.convertStationStatsDtoListToStationList(routeStats.getStations()));
 
-                // Allocation of 1 vehicle for each route with zero requests
-                // and other vehicles in routes with statistics based criteria
-                for (RouteStatsDTO routeStats : routeStatsList) {
-                    if (routeStats.getRequests() == 0) {
-                        ride = new Ride(Utils.convertStationStatsDtoListToStationList(routeStats.getStations()));
-                        vehicleList.get(vehicleElem).setRide(ride);
-                        this.vehicleRepository.save(vehicleList.get(vehicleElem));
-                        vehicleElem++;
-                        totalVehicles--;
-                    } else {
-                        int p = routeStats.getRequests() / statistics.getAllTripRequests() * 100;
-                        int vehiclesToAssign = p * totalVehicles / 100;
-                        for (int i = vehicleElem; i < vehicleElem + vehiclesToAssign; i++) {
-                            ride = new Ride(Utils.convertStationStatsDtoListToStationList(routeStats.getStations()));
-                            vehicleList.get(vehicleElem).setRide(ride);
-                            this.vehicleRepository.save(vehicleList.get(vehicleElem));
+                    int vehiclesAlreadyAssigned = 0;
+                    for (StationStatsDTO stationStats : routeStats.getStations()) {
+
+                        // no more available vehicles to assign
+                        if (vehiclesToAssignAtRoute - vehiclesAlreadyAssigned == 0) break;
+
+                        p = stationStats.getRequests() / routeStats.getRequests() * 100;
+                        final int vehiclesStation = p * vehiclesToAssignAtRoute / 100;
+                        ride.setAssignedStation(new Station(stationStats.getNodeId(), stationStats.getPosition()));
+
+                        for (int i = vehicleElem; i <= vehicleElem + vehiclesStation; i++) {
+                            vehicleList.get(i).setRide(ride);
+                            this.vehicleRepository.save(vehicleList.get(i));
+                            vehiclesAlreadyAssigned++;
                         }
-                        vehicleElem += vehiclesToAssign;
-                        totalVehicles -= vehiclesToAssign;
+                        vehicleElem += vehiclesStation;
+                        numberOfAvailableVehicles -= vehiclesStation;
                     }
                 }
             }
@@ -101,9 +104,8 @@ public class VehicleService {
     public VehicleStatus requestAssignment(TripDTO trip) {
         VehicleStatus vehicleStatus = null;
 
-        // Veicoli che appartengono alla rotta del trip, con posti disponibili e ordinati per posti occupati in modo decrescente
         List<Vehicle> vehicleList =
-                this.vehicleRepository.findRouteByNodeIdsAndAvailableSeatsAndOrderByOccupiedSeatsDesc(List.of(trip.getSource()));
+                this.vehicleRepository.findByNodeIdsInRouteAndAvailableSeatsAndOrderByOccupiedSeatsDesc(List.of(trip.getSource()));
 
         boolean vehicleFound = false;
         if (vehicleList.size() > 0) {
@@ -115,7 +117,8 @@ public class VehicleService {
                     break;
                 }
             }
-            // non è stato trovato un veicolo ottimo, assegnamo il primo con posti occupati maggiore (che avrà posti diponibili per certo)
+
+            // It was not found vehicle optimal vehicle... assign request to first vehicle available...
             if (!vehicleFound) {
                 this.updatePickPointForVehicle(vehicleList.get(0), trip);
                 vehicleStatus = this.prepareVehicleStatusObject(vehicleList.get(0));

@@ -10,10 +10,11 @@ import java.util.List;
 
 public class Ride implements Serializable {
 
+    private Station assignedStation;
     private List<Station> route;
     private List<PickPoint> pickPoints;
     private boolean moving;
-    private Date startDate;
+    private Date initialWaitingDate;
 
 
     public Ride() {
@@ -25,11 +26,12 @@ public class Ride implements Serializable {
         this.route = route;
     }
 
-    public Ride(List<Station> route, List<PickPoint> pickPoints, boolean moving, Date startDate) {
-        this.route = route;
-        this.pickPoints = pickPoints;
-        this.moving = moving;
-        this.startDate = startDate;
+    public Station getAssignedStation() {
+        return assignedStation;
+    }
+
+    public void setAssignedStation(Station assignedStation) {
+        this.assignedStation = assignedStation;
     }
 
     public List<Station> getRoute() {
@@ -56,11 +58,11 @@ public class Ride implements Serializable {
         this.moving = moving;
     }
 
-    public Date getStartDate() {
-        return startDate;
+    public Date getInitialWaitingDate() {
+        return initialWaitingDate;
     }
 
-    public void setStartDate(Date startDate) {
-        this.startDate = startDate;
+    public void setInitialWaitingDate(Date initialWaitingDate) {
+        this.initialWaitingDate = initialWaitingDate;
     }
 }
