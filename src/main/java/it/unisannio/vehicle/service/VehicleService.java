@@ -57,11 +57,26 @@ public class VehicleService {
         StatisticsDTO statistics = this.tripService.getTripStatistics();
         List<RouteStatsDTO> routeStatsList = statistics.getRouteStatsList();
         List<Vehicle> vehicleList = this.vehicleRepository.getAllStoppedVehicles();
-        final int totalVehicles = vehicleList.size();
-        int numberOfAvailableVehicles = totalVehicles;
+        int numberOfAvailableVehicles = vehicleList.size();
         int vehicleElem = 0;
         Ride ride;
-        if (routeStatsList != null && totalVehicles > 0) {
+        if (routeStatsList != null && numberOfAvailableVehicles > 0) {
+
+            // assign one vehicle for each route
+            for (RouteStatsDTO routeStats : routeStatsList) {
+                if (numberOfAvailableVehicles == 0) break;
+
+                ride = new Ride(Utils.convertStationStatsDtoListToStationList(routeStats.getStations()));
+                ride.setAssignedStation(
+                        new Station(routeStats.getStations().get(0).getNodeId(), routeStats.getStations().get(0).getPosition()));
+                vehicleList.get(vehicleElem).setRide(ride);
+                this.vehicleRepository.save(vehicleList.get(vehicleElem));
+                vehicleElem++;
+                numberOfAvailableVehicles--;
+            }
+
+            final int totalVehicles = numberOfAvailableVehicles;
+
             for (RouteStatsDTO routeStats : routeStatsList) {
                 if (numberOfAvailableVehicles == 0) break;
 
@@ -73,9 +88,9 @@ public class VehicleService {
                     vehicleElem++;
                     numberOfAvailableVehicles--;
                 } else {
-                    int p = routeStats.getRequests() / statistics.getAllTripRequests() * 100;
+                    int p = (int) Math.round((double)routeStats.getRequests() / (double)statistics.getAllTripRequests() * 100);
                     // vehiclesToAssignAtRoute: number of vehicles with the same route
-                    final int vehiclesToAssignAtRoute = p * totalVehicles / 100;
+                    final int vehiclesToAssignAtRoute = (int) Math.round((double) p * totalVehicles / 100);
                     ride = new Ride(Utils.convertStationStatsDtoListToStationList(routeStats.getStations()));
 
                     int vehiclesAlreadyAssigned = 0;
@@ -84,11 +99,11 @@ public class VehicleService {
                         // no more available vehicles to assign
                         if (vehiclesToAssignAtRoute - vehiclesAlreadyAssigned == 0) break;
 
-                        p = stationStats.getRequests() / routeStats.getRequests() * 100;
-                        final int vehiclesStation = p * vehiclesToAssignAtRoute / 100;
+                        p = (int) Math.round((double) stationStats.getRequests() / (double) routeStats.getRequests() * 100);
+                        final int vehiclesStation = (int) Math.round((double) p * vehiclesToAssignAtRoute / 100);
                         ride.setAssignedStation(new Station(stationStats.getNodeId(), stationStats.getPosition()));
 
-                        for (int i = vehicleElem; i <= vehicleElem + vehiclesStation; i++) {
+                        for (int i = vehicleElem; i < vehicleElem + vehiclesStation; i++) {
                             vehicleList.get(i).setRide(ride);
                             this.vehicleRepository.save(vehicleList.get(i));
                             vehiclesAlreadyAssigned++;
