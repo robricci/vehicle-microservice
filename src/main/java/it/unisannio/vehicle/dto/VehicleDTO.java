@@ -1,7 +1,6 @@
 package it.unisannio.vehicle.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import it.unisannio.vehicle.dto.internal.Coordinate;
 import it.unisannio.vehicle.dto.internal.Station;
 import it.unisannio.vehicle.model.Vehicle;
 
@@ -14,11 +13,11 @@ import java.util.List;
 public class VehicleDTO implements Serializable {
 
     private String id;
-    private String licenseId;
+    private String licensePlate;
     private Integer waitingTimeTarget;
     private Integer occupancyTarget;
     private Integer inertialTimeTarget;
-    private Coordinate location;
+    private Station lastKnownStation;
     private Integer totalAvailableSeats;
     private Integer occupiedSeats;
     private Date creationDate;
@@ -33,12 +32,12 @@ public class VehicleDTO implements Serializable {
 
     public VehicleDTO(Vehicle vehicle) {
         this.id = vehicle.getId();
-        this.licenseId = vehicle.getLicenseId();
+        this.licensePlate = vehicle.getLicensePlate();
         this.totalAvailableSeats = vehicle.getTotalAvailableSeats();
         this.waitingTimeTarget = vehicle.getWaitingTimeTarget();
         this.occupancyTarget = vehicle.getOccupancyTarget();
         this.inertialTimeTarget = vehicle.getInertialTimeTarget();
-        this.location = vehicle.getLocation();
+        this.lastKnownStation = vehicle.getLastKnownStation();
         this.creationDate = vehicle.getCreationDate();
         this.occupiedSeats = vehicle.getOccupiedSeats();
 
@@ -71,12 +70,12 @@ public class VehicleDTO implements Serializable {
         this.id = id;
     }
 
-    public String getLicenseId() {
-        return licenseId;
+    public String getLicensePlate() {
+        return licensePlate;
     }
 
-    public void setLicenseId(String licenseId) {
-        this.licenseId = licenseId;
+    public void setLicensePlate(String licensePlate) {
+        this.licensePlate = licensePlate;
     }
 
     public Integer getWaitingTimeTarget() {
@@ -103,12 +102,12 @@ public class VehicleDTO implements Serializable {
         this.inertialTimeTarget = inertialTimeTarget;
     }
 
-    public Coordinate getLocation() {
-        return location;
+    public Station getLastKnownStation() {
+        return lastKnownStation;
     }
 
-    public void setLocation(Coordinate location) {
-        this.location = location;
+    public void setLastKnownStation(Station lastKnownStation) {
+        this.lastKnownStation = lastKnownStation;
     }
 
     public Integer getTotalAvailableSeats() {

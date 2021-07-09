@@ -6,6 +6,7 @@ import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 
 @Repository
@@ -17,4 +18,6 @@ public interface VehicleRepository extends MongoRepository<Vehicle, String> {
     @Query(value = "{ $where: 'this.occupiedSeats < this.totalAvailableSeats', 'ride.route.nodeId': { $all: ?0 }}",
             sort = "{ 'occupiedSeats': -1 }")
     List<Vehicle> findByNodeIdsInRouteAndAvailableSeatsAndOrderByOccupiedSeatsDesc(List<Integer> ids);
+
+    Optional<Vehicle> findByLicensePlate(String licensePlate);
 }

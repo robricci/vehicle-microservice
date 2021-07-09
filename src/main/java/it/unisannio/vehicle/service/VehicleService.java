@@ -1,30 +1,39 @@
 package it.unisannio.vehicle.service;
 
 import it.unisannio.vehicle.Utils;
-import it.unisannio.vehicle.dto.InsertVehicleDTO;
-import it.unisannio.vehicle.dto.PickPoint;
-import it.unisannio.vehicle.dto.VehicleDTO;
+import it.unisannio.vehicle.dto.*;
 import it.unisannio.vehicle.dto.internal.*;
 import it.unisannio.vehicle.model.Vehicle;
 import it.unisannio.vehicle.pojo.VehicleStatus;
 import it.unisannio.vehicle.pojo.Ride;
 import it.unisannio.vehicle.repository.VehicleRepository;
+import it.unisannio.vehicle.websocket.WebSocketClientNotFoundException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
 @Service
 public class VehicleService {
 
+    private final Logger logger = LoggerFactory.getLogger(VehicleService.class);
+
     private VehicleRepository vehicleRepository;
     private TripService tripService;
+    private WebSocketService webSocketService;
+    private TrafficService trafficService;
 
     @Autowired
-    public VehicleService(VehicleRepository vehicleRepository, TripService tripService) {
+    public VehicleService(VehicleRepository vehicleRepository, TrafficService trafficService,
+                          TripService tripService, WebSocketService webSocketService) {
         this.vehicleRepository = vehicleRepository;
+        this.trafficService = trafficService;
         this.tripService = tripService;
+        this.webSocketService = webSocketService;
     }
 
     public List<VehicleDTO> getVehiclesInfo() {
@@ -44,7 +53,7 @@ public class VehicleService {
     public void insertVehicles(List<InsertVehicleDTO> vehicleList) {
         for (InsertVehicleDTO newVehicle : vehicleList) {
             Vehicle v = new Vehicle(
-                    newVehicle.getLicenseId(),
+                    newVehicle.getLicensePlate(),
                     newVehicle.getTotalAvailableSeats(),
                     newVehicle.getWaitingTimeTarget(),
                     newVehicle.getOccupancyTarget(),
@@ -142,6 +151,82 @@ public class VehicleService {
             vehicleStatus = new VehicleStatus(VehicleStatus.Status.FULL);
         }
         return vehicleStatus;
+    }
+
+    public NextStationDTO getNextStation(String sessionId, NextStationRequestDTO request) {
+        NextStationDTO nextStation = null;
+        String licensePlate = this.webSocketService.getLicensePlateFromWebsocket(sessionId);
+        Optional<Vehicle> vehicleOptional = this.vehicleRepository.findByLicensePlate(licensePlate);
+
+        if (vehicleOptional.isPresent() && vehicleOptional.get().getRide() != null
+                && vehicleOptional.get().getRide().getPickPoints() != null) {
+
+            Vehicle vehicle = vehicleOptional.get();
+            List<PickPoint> pickPoints = vehicle.getRide().getPickPoints();
+
+            // Updating PickPoint for vehicle
+            Station currentStation = request.getCurrentStation();
+            Iterator<PickPoint> iterator = pickPoints.iterator();
+            vehicle.setLastKnownStation(currentStation);
+            while (iterator.hasNext()) {
+                PickPoint pp = iterator.next();
+                if (pp.getDestinationNodeId().equals(currentStation.getNodeId()) && pp.getStatus().equals(PickPoint.Status.ONBOARDED)) {
+                    vehicle.decrementOccupiedSeat();
+                    iterator.remove(); // release passenger...
+                } else if (pp.getSourceNodeId().equals(currentStation.getNodeId()) && pp.getStatus().equals(PickPoint.Status.WAIT)) {
+                    pp.setStatus(PickPoint.Status.ONBOARDED);
+                }
+            }
+            vehicle.getRide().setPickPoints(pickPoints);
+            this.vehicleRepository.save(vehicle);
+
+
+            nextStation = this.findNextStation(pickPoints, vehicle.getRide().getRoute(), vehicle.getLastKnownStation());
+        }
+
+        return nextStation;
+    }
+
+    public void startRideForVehicle(Vehicle vehicle) {
+        vehicle.getRide().setMoving(true);
+
+        NextStationDTO nextStationDTO = findNextStation(vehicle.getRide().getPickPoints(), vehicle.getRide().getRoute(), vehicle.getLastKnownStation());
+        try {
+            this.webSocketService.sendMessage(vehicle.getLicensePlate(), nextStationDTO);
+        } catch (WebSocketClientNotFoundException e) {
+            logger.info(e.getMessage());
+        }
+    }
+
+    private NextStationDTO findNextStation(List<PickPoint> pickPoints, List<Station> route, Station lastKnownStation) {
+        NextStationDTO nextStation = null;
+        if (pickPoints.size() > 0) {
+            int i = route.indexOf(lastKnownStation);
+            int iterations = 0;
+            while (iterations < route.size()) {
+                if (isANextStation(route.get(i), pickPoints)) {
+                    List<Coordinate> minPath = this.trafficService.shortestPath(lastKnownStation.getNodeId(), route.get(i).getNodeId());
+                    nextStation = new NextStationDTO(route.get(i), minPath);
+                    break;
+                }
+                i = i + 1 % route.size();
+                iterations++;
+            }
+        }
+        return nextStation;
+    }
+
+    private boolean isANextStation(Station station, List<PickPoint> pickPoints) {
+        boolean isANextStation = false;
+        for (PickPoint pickPoint : pickPoints) {
+            isANextStation = isANextStation || (
+                    (pickPoint.getSourceNodeId().equals(station.getNodeId()) && pickPoint.getStatus().equals(PickPoint.Status.WAIT))
+                    ||
+                    (pickPoint.getDestinationNodeId().equals(station.getNodeId()) && pickPoint.getStatus().equals(PickPoint.Status.ONBOARDED))
+            );
+        }
+
+        return isANextStation;
     }
 
     private void updatePickPointForVehicle(Vehicle vehicle, TripDTO trip) {

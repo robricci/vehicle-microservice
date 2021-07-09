@@ -30,4 +30,17 @@ public class Station implements Serializable {
     public void setPosition(Coordinate position) {
         this.position = position;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) return false;
+
+        if (!(obj instanceof Station)) return false;
+
+        Station s = (Station) obj;
+        return this.getNodeId().equals(s.getNodeId())
+                /*&& this.getPosition() != null
+                && this.getPosition().getLatitude().equals(s.getPosition().getLatitude())
+                && this.getPosition().getLongitude().equals(s.getPosition().getLongitude())*/;
+    }
 }

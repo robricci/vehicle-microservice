@@ -4,7 +4,7 @@ import java.io.Serializable;
 
 public class InsertVehicleDTO implements Serializable {
 
-    private String licenseId;
+    private String licensePlate;
     private Integer totalAvailableSeats;
     private Integer waitingTimeTarget;
     private Integer occupancyTarget;
@@ -12,20 +12,20 @@ public class InsertVehicleDTO implements Serializable {
 
     public InsertVehicleDTO() { }
 
-    public InsertVehicleDTO(String licenseId, Integer totalAvailableSeats, Integer waitingTimeTarget, Integer occupancyTarget, Integer inertialTimeTarget) {
-        this.licenseId = licenseId;
+    public InsertVehicleDTO(String licensePlate, Integer totalAvailableSeats, Integer waitingTimeTarget, Integer occupancyTarget, Integer inertialTimeTarget) {
+        this.licensePlate = licensePlate;
         this.totalAvailableSeats = totalAvailableSeats;
         this.waitingTimeTarget = waitingTimeTarget;
         this.occupancyTarget = occupancyTarget;
         this.inertialTimeTarget = inertialTimeTarget;
     }
 
-    public String getLicenseId() {
-        return licenseId;
+    public String getLicensePlate() {
+        return licensePlate;
     }
 
-    public void setLicenseId(String licenseId) {
-        this.licenseId = licenseId;
+    public void setLicensePlate(String licensePlate) {
+        this.licensePlate = licensePlate;
     }
 
     public Integer getTotalAvailableSeats() {

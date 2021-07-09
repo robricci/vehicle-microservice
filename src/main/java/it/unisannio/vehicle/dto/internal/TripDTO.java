@@ -14,6 +14,14 @@ public class TripDTO implements Serializable {
 
     public TripDTO() {}
 
+    public TripDTO(String id, Integer source, Integer destination, Date requestDate, Integer vehicleId) {
+        this.id = id;
+        this.source = source;
+        this.destination = destination;
+        this.requestDate = requestDate;
+        this.vehicleId = vehicleId;
+    }
+
     public String getId() {
         return id;
     }

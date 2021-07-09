@@ -1,7 +1,7 @@
 package it.unisannio.vehicle.model;
 
 import it.unisannio.vehicle.dto.PickPoint;
-import it.unisannio.vehicle.dto.internal.Coordinate;
+import it.unisannio.vehicle.dto.internal.Station;
 import it.unisannio.vehicle.pojo.Ride;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -13,16 +13,13 @@ import java.util.Date;
 @Document
 public class Vehicle implements Serializable {
 
-    // serve indicare chi sta guidando il veicolo? forse no, quindi si assume
-    // che il guidatore che sale sul veicolo inserisca (ad esempio) la targa
-    // e quindi viene mappato a runtime con la targa (esempio: websocket guidatore-> <Session, Vehicle>
     @Id
     private String id;
-    private String licenseId;
+    private String licensePlate;
     private Integer waitingTimeTarget;
     private Integer occupancyTarget;
     private Integer inertialTimeTarget;
-    private Coordinate location;
+    private Station lastKnownStation;
     private Integer totalAvailableSeats;
     private Integer occupiedSeats;
     private Date creationDate;
@@ -33,9 +30,9 @@ public class Vehicle implements Serializable {
         this.occupiedSeats = 0;
     }
 
-    public Vehicle(String id, String licenseId, Integer totalAvailableSeats, Integer waitingTimeTarget, Integer occupancyTarget, Integer inertialTimeTarget) {
+    public Vehicle(String id, String licensePlate, Integer totalAvailableSeats, Integer waitingTimeTarget, Integer occupancyTarget, Integer inertialTimeTarget) {
         this.id = id;
-        this.licenseId = licenseId;
+        this.licensePlate = licensePlate;
         this.totalAvailableSeats = totalAvailableSeats;
         this.waitingTimeTarget = waitingTimeTarget;
         this.occupancyTarget = occupancyTarget;
@@ -44,8 +41,8 @@ public class Vehicle implements Serializable {
         this.occupiedSeats = 0;
     }
 
-    public Vehicle(String licenseId, Integer totalAvailableSeats, Integer waitingTimeTarget, Integer occupancyTarget, Integer inertialTimeTarget) {
-        this.licenseId = licenseId;
+    public Vehicle(String licensePlate, Integer totalAvailableSeats, Integer waitingTimeTarget, Integer occupancyTarget, Integer inertialTimeTarget) {
+        this.licensePlate = licensePlate;
         this.totalAvailableSeats = totalAvailableSeats;
         this.waitingTimeTarget = waitingTimeTarget;
         this.occupancyTarget = occupancyTarget;
@@ -62,12 +59,12 @@ public class Vehicle implements Serializable {
         this.id = id;
     }
 
-    public String getLicenseId() {
-        return licenseId;
+    public String getLicensePlate() {
+        return licensePlate;
     }
 
-    public void setLicenseId(String licenseId) {
-        this.licenseId = licenseId;
+    public void setLicensePlate(String licensePlate) {
+        this.licensePlate = licensePlate;
     }
 
     public Integer getWaitingTimeTarget() {
@@ -94,12 +91,12 @@ public class Vehicle implements Serializable {
         this.inertialTimeTarget = inertialTimeTarget;
     }
 
-    public Coordinate getLocation() {
-        return location;
+    public Station getLastKnownStation() {
+        return lastKnownStation;
     }
 
-    public void setLocation(Coordinate location) {
-        this.location = location;
+    public void setLastKnownStation(Station lastKnownStation) {
+        this.lastKnownStation = lastKnownStation;
     }
 
     public Integer getTotalAvailableSeats() {
@@ -136,6 +133,10 @@ public class Vehicle implements Serializable {
 
     public void incrementOccupiedSeat() {
         this.occupiedSeats++;
+    }
+
+    public void decrementOccupiedSeat() {
+        this.occupiedSeats--;
     }
 
     public int getAvailableSeats() {

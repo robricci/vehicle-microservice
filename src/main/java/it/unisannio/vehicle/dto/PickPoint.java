@@ -2,7 +2,7 @@ package it.unisannio.vehicle.dto;
 
 public class PickPoint {
 
-    public enum Status {WAIT, ONBOARDED, RELEASED}
+    public enum Status {WAIT, ONBOARDED}
 
     private String tripId;
     private Integer sourceNodeId;

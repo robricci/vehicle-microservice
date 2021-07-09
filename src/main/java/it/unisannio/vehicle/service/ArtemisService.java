@@ -18,8 +18,6 @@ import javax.jms.Message;
 @EnableJms
 public class ArtemisService {
 
-    private static final String SESSION_ID_PROPERTY = "sessionId";
-
     @Value("${jms.topic.trip-confirmation}")
     private String tripConfirmationTopic;
 
@@ -50,20 +48,19 @@ public class ArtemisService {
                 for (PickPoint pickPoint : vehicleStatus.getVehicle().getRide().getPickPoints()) {
                     tripNotification = new TripNotificationDTO();
                     tripNotification.setTripId(pickPoint.getTripId());
-                    tripNotification.setVehicleLicenseId(vehicleStatus.getVehicle().getLicenseId());
+                    tripNotification.setVehicleLicenseId(vehicleStatus.getVehicle().getLicensePlate());
                     tripNotification.setPickUpNodeId(pickPoint.getSourceNodeId());
                     tripNotification.setStatus(TripNotificationDTO.Status.APPROVED);
                     this.sendTripNotification(tripNotification);
                 }
 
-                // TODO avvertire il guidatore della partenza (inviare msg in websocket)
-                // TODO cambiare vehicle.moving = true;
+                this.vehicleService.startRideForVehicle(vehicleStatus.getVehicle());
                 break;
             case MOVING:
                 // we can send a TripNotification only for last trip
                 tripNotification = new TripNotificationDTO();
                 tripNotification.setTripId(tripDTO.getId());
-                tripNotification.setVehicleLicenseId(vehicleStatus.getVehicle().getLicenseId());
+                tripNotification.setVehicleLicenseId(vehicleStatus.getVehicle().getLicensePlate());
                 tripNotification.setPickUpNodeId(tripDTO.getSource());
                 tripNotification.setStatus(TripNotificationDTO.Status.APPROVED);
                 this.sendTripNotification(tripNotification);

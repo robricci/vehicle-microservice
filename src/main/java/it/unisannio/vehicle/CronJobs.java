@@ -22,6 +22,6 @@ public class CronJobs {
     @SchedulerLock(name = "vehiclesDisplacementEvery24Hours", lockAtLeastFor = "15m")
     public void vehiclesDisplacementEvery24Hours() {
         LockAssert.assertLocked();
-        this.vehicleService.displacement();
+        // TODO uncomment this.vehicleService.displacement();
     }
 }
