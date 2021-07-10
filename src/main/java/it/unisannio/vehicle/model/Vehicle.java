@@ -1,7 +1,6 @@
 package it.unisannio.vehicle.model;
 
 import it.unisannio.vehicle.dto.PickPoint;
-import it.unisannio.vehicle.dto.internal.Station;
 import it.unisannio.vehicle.pojo.Ride;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -19,7 +18,6 @@ public class Vehicle implements Serializable {
     private Integer waitingTimeTarget;
     private Integer occupancyTarget;
     private Integer inertialTimeTarget;
-    private Station lastKnownStation;
     private Integer totalAvailableSeats;
     private Integer occupiedSeats;
     private Date creationDate;
@@ -89,14 +87,6 @@ public class Vehicle implements Serializable {
 
     public void setInertialTimeTarget(Integer inertialTimeTarget) {
         this.inertialTimeTarget = inertialTimeTarget;
-    }
-
-    public Station getLastKnownStation() {
-        return lastKnownStation;
-    }
-
-    public void setLastKnownStation(Station lastKnownStation) {
-        this.lastKnownStation = lastKnownStation;
     }
 
     public Integer getTotalAvailableSeats() {

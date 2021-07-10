@@ -6,6 +6,8 @@ import java.util.Date;
 
 public class TripDTO implements Serializable {
 
+    private static final long serialVersionUID = 2515869443256881347L;
+
     private String id;
     private Integer source;
     private Integer destination;

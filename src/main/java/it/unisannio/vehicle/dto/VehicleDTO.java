@@ -17,14 +17,13 @@ public class VehicleDTO implements Serializable {
     private Integer waitingTimeTarget;
     private Integer occupancyTarget;
     private Integer inertialTimeTarget;
-    private Station lastKnownStation;
     private Integer totalAvailableSeats;
     private Integer occupiedSeats;
     private Date creationDate;
 
     private Date startDate;
     private Date initialWaitingDate;
-    private Station assignedStation;
+    private Station currentStation;
     private List<Station> route;
     private List<PickPoint> pickPoint;
 
@@ -37,13 +36,12 @@ public class VehicleDTO implements Serializable {
         this.waitingTimeTarget = vehicle.getWaitingTimeTarget();
         this.occupancyTarget = vehicle.getOccupancyTarget();
         this.inertialTimeTarget = vehicle.getInertialTimeTarget();
-        this.lastKnownStation = vehicle.getLastKnownStation();
         this.creationDate = vehicle.getCreationDate();
         this.occupiedSeats = vehicle.getOccupiedSeats();
 
         if (vehicle.getRide() != null) {
             this.startDate = vehicle.getRide().getInitialWaitingDate();
-            this.assignedStation = vehicle.getRide().getAssignedStation();
+            this.currentStation = vehicle.getRide().getCurrentStation();
             this.initialWaitingDate = vehicle.getRide().getInitialWaitingDate();
             this.route = vehicle.getRide().getRoute();
             this.pickPoint = vehicle.getRide().getPickPoints();
@@ -102,14 +100,6 @@ public class VehicleDTO implements Serializable {
         this.inertialTimeTarget = inertialTimeTarget;
     }
 
-    public Station getLastKnownStation() {
-        return lastKnownStation;
-    }
-
-    public void setLastKnownStation(Station lastKnownStation) {
-        this.lastKnownStation = lastKnownStation;
-    }
-
     public Integer getTotalAvailableSeats() {
         return totalAvailableSeats;
     }
@@ -150,12 +140,12 @@ public class VehicleDTO implements Serializable {
         this.initialWaitingDate = initialWaitingDate;
     }
 
-    public Station getAssignedStation() {
-        return assignedStation;
+    public Station getCurrentStation() {
+        return currentStation;
     }
 
-    public void setAssignedStation(Station assignedStation) {
-        this.assignedStation = assignedStation;
+    public void setCurrentStation(Station currentStation) {
+        this.currentStation = currentStation;
     }
 
     public List<Station> getRoute() {

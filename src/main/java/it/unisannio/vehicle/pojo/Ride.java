@@ -10,12 +10,13 @@ import java.util.List;
 
 public class Ride implements Serializable {
 
-    private Station assignedStation;
+    private static final long serialVersionUID = 6744782914717822071L;
+
+    private Station currentStation;
     private List<Station> route;
     private List<PickPoint> pickPoints;
     private boolean moving;
     private Date initialWaitingDate;
-
 
     public Ride() {
         this.pickPoints = new ArrayList<>();
@@ -26,12 +27,12 @@ public class Ride implements Serializable {
         this.route = route;
     }
 
-    public Station getAssignedStation() {
-        return assignedStation;
+    public Station getCurrentStation() {
+        return currentStation;
     }
 
-    public void setAssignedStation(Station assignedStation) {
-        this.assignedStation = assignedStation;
+    public void setCurrentStation(Station currentStation) {
+        this.currentStation = currentStation;
     }
 
     public List<Station> getRoute() {

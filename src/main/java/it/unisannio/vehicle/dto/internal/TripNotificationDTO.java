@@ -7,7 +7,7 @@ public class TripNotificationDTO implements Serializable {
     public enum Status { APPROVED, REJECTED }
 
     private String tripId;
-    private String vehicleLicenseId;
+    private String vehicleLicensePlate;
     private Integer pickUpNodeId;
 
     private Status status;
@@ -23,9 +23,9 @@ public class TripNotificationDTO implements Serializable {
         this.status = status;
     }
 
-    public TripNotificationDTO(String tripId, String vehicleLicenseId, Integer pickUpNodeId) {
+    public TripNotificationDTO(String tripId, String vehicleLicensePlate, Integer pickUpNodeId) {
         this.tripId = tripId;
-        this.vehicleLicenseId = vehicleLicenseId;
+        this.vehicleLicensePlate = vehicleLicensePlate;
         this.pickUpNodeId = pickUpNodeId;
         this.status = Status.APPROVED;
     }
@@ -38,12 +38,12 @@ public class TripNotificationDTO implements Serializable {
         this.tripId = tripId;
     }
 
-    public String getVehicleLicenseId() {
-        return vehicleLicenseId;
+    public String getVehicleLicensePlate() {
+        return vehicleLicensePlate;
     }
 
-    public void setVehicleLicenseId(String vehicleLicenseId) {
-        this.vehicleLicenseId = vehicleLicenseId;
+    public void setVehicleLicensePlate(String vehicleLicensePlate) {
+        this.vehicleLicensePlate = vehicleLicensePlate;
     }
 
     public Integer getPickUpNodeId() {

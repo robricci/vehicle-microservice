@@ -76,7 +76,7 @@ public class VehicleService {
                 if (numberOfAvailableVehicles == 0) break;
 
                 ride = new Ride(Utils.convertStationStatsDtoListToStationList(routeStats.getStations()));
-                ride.setAssignedStation(
+                ride.setCurrentStation(
                         new Station(routeStats.getStations().get(0).getNodeId(), routeStats.getStations().get(0).getPosition()));
                 vehicleList.get(vehicleElem).setRide(ride);
                 this.vehicleRepository.save(vehicleList.get(vehicleElem));
@@ -91,7 +91,7 @@ public class VehicleService {
 
                 if (routeStats.getRequests() == 0) {
                     ride = new Ride(Utils.convertStationStatsDtoListToStationList(routeStats.getStations()));
-                    ride.setAssignedStation(ride.getRoute().get(0));
+                    ride.setCurrentStation(ride.getRoute().get(0));
                     vehicleList.get(vehicleElem).setRide(ride);
                     this.vehicleRepository.save(vehicleList.get(vehicleElem));
                     vehicleElem++;
@@ -110,7 +110,7 @@ public class VehicleService {
 
                         p = (int) Math.round((double) stationStats.getRequests() / (double) routeStats.getRequests() * 100);
                         final int vehiclesStation = (int) Math.round((double) p * vehiclesToAssignAtRoute / 100);
-                        ride.setAssignedStation(new Station(stationStats.getNodeId(), stationStats.getPosition()));
+                        ride.setCurrentStation(new Station(stationStats.getNodeId(), stationStats.getPosition()));
 
                         for (int i = vehicleElem; i < vehicleElem + vehiclesStation; i++) {
                             vehicleList.get(i).setRide(ride);
@@ -167,7 +167,7 @@ public class VehicleService {
             // Updating PickPoint for vehicle
             Station currentStation = request.getCurrentStation();
             Iterator<PickPoint> iterator = pickPoints.iterator();
-            vehicle.setLastKnownStation(currentStation);
+            vehicle.getRide().setCurrentStation(currentStation);
             while (iterator.hasNext()) {
                 PickPoint pp = iterator.next();
                 if (pp.getDestinationNodeId().equals(currentStation.getNodeId()) && pp.getStatus().equals(PickPoint.Status.ONBOARDED)) {
@@ -181,7 +181,7 @@ public class VehicleService {
             this.vehicleRepository.save(vehicle);
 
 
-            nextStation = this.findNextStation(pickPoints, vehicle.getRide().getRoute(), vehicle.getLastKnownStation());
+            nextStation = this.findNextStation(pickPoints, vehicle.getRide().getRoute(), vehicle.getRide().getCurrentStation());
         }
 
         return nextStation;
@@ -189,23 +189,23 @@ public class VehicleService {
 
     public void startRideForVehicle(Vehicle vehicle) {
         vehicle.getRide().setMoving(true);
-
-        NextStationDTO nextStationDTO = findNextStation(vehicle.getRide().getPickPoints(), vehicle.getRide().getRoute(), vehicle.getLastKnownStation());
+        NextStationDTO nextStationDTO = findNextStation(vehicle.getRide().getPickPoints(), vehicle.getRide().getRoute(), vehicle.getRide().getCurrentStation());
         try {
             this.webSocketService.sendMessage(vehicle.getLicensePlate(), nextStationDTO);
+            this.vehicleRepository.save(vehicle);
         } catch (WebSocketClientNotFoundException e) {
             logger.info(e.getMessage());
         }
     }
 
-    private NextStationDTO findNextStation(List<PickPoint> pickPoints, List<Station> route, Station lastKnownStation) {
+    private NextStationDTO findNextStation(List<PickPoint> pickPoints, List<Station> route, Station currentStation) {
         NextStationDTO nextStation = null;
         if (pickPoints.size() > 0) {
-            int i = route.indexOf(lastKnownStation);
+            int i = route.indexOf(currentStation);
             int iterations = 0;
             while (iterations < route.size()) {
                 if (isANextStation(route.get(i), pickPoints)) {
-                    List<Coordinate> minPath = this.trafficService.shortestPath(lastKnownStation.getNodeId(), route.get(i).getNodeId());
+                    List<Coordinate> minPath = this.trafficService.shortestPath(currentStation.getNodeId(), route.get(i).getNodeId());
                     nextStation = new NextStationDTO(route.get(i), minPath);
                     break;
                 }

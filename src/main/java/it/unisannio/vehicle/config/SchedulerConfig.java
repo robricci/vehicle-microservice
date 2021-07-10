@@ -1,4 +1,4 @@
-package it.unisannio.vehicle;
+package it.unisannio.vehicle.config;
 
 import com.mongodb.client.MongoClient;
 import net.javacrumbs.shedlock.core.LockProvider;
