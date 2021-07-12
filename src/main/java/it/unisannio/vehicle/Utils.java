@@ -3,12 +3,11 @@ package it.unisannio.vehicle;
 import it.unisannio.vehicle.dto.internal.Station;
 import it.unisannio.vehicle.dto.internal.StationStatsDTO;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class Utils {
+
+    private static final Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
 
     public static List<Station> convertStationStatsDtoListToStationList(List<StationStatsDTO> stationStatsList) {
         List<Station> stations = new ArrayList<>();
@@ -36,5 +35,10 @@ public class Utils {
             map.put(name, value);
         }
         return map;
+    }
+
+    public static Date convertDateToUTC(Date date) {
+        calendar.setTime(date);
+        return calendar.getTime();
     }
 }

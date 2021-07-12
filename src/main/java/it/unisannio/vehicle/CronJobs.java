@@ -1,5 +1,6 @@
 package it.unisannio.vehicle;
 
+import it.unisannio.vehicle.service.MovingService;
 import it.unisannio.vehicle.service.VehicleService;
 import net.javacrumbs.shedlock.core.LockAssert;
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
@@ -10,11 +11,11 @@ import org.springframework.stereotype.Component;
 @Component
 public class CronJobs {
 
-    private VehicleService vehicleService;
+    private MovingService movingService;
 
     @Autowired
-    public CronJobs(VehicleService vehicleService) {
-        this.vehicleService = vehicleService;
+    public CronJobs(MovingService movingService) {
+        this.movingService = movingService;
     }
 
     // cron = "second, minute, hour, day of month, month, day(s) of week"
@@ -23,6 +24,13 @@ public class CronJobs {
     public void vehiclesDisplacementEvery24Hours() {
         LockAssert.assertLocked();
         // TODO uncomment
-        // this.vehicleService.displacement();
+        // this.movingService.displacement();
+    }
+
+    @Scheduled(cron = "0 3 * * * ?", zone = "UTC")
+    @SchedulerLock(name = "checkVehicleTemporalParameters", lockAtLeastFor = "2m")
+    public void checkVehicleTemporalParameters() {
+        LockAssert.assertLocked();
+        this.movingService.checkVehicleTemporalParameters();
     }
 }

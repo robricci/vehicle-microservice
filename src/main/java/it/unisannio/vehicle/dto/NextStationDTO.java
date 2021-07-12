@@ -13,6 +13,10 @@ public class NextStationDTO implements Serializable {
 
     public NextStationDTO() { }
 
+    public NextStationDTO(Station nextStation) {
+        this.nextStation = nextStation;
+    }
+
     public NextStationDTO(Station nextStation, List<Coordinate> minPath) {
         this.nextStation = nextStation;
         this.minPath = minPath;

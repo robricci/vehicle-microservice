@@ -3,7 +3,7 @@ package it.unisannio.vehicle.websocket;
 import it.unisannio.vehicle.Utils;
 import it.unisannio.vehicle.dto.NextStationDTO;
 import it.unisannio.vehicle.dto.NextStationRequestDTO;
-import it.unisannio.vehicle.service.VehicleService;
+import it.unisannio.vehicle.service.MovingService;
 import it.unisannio.vehicle.service.WebSocketService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,12 +17,12 @@ import java.util.Map;
 public class WebSocketEndpoint {
 
     private final Logger logger = LoggerFactory.getLogger(WebSocketEndpoint.class);
-    private static VehicleService vehicleService;
+    private static MovingService movingService;
     private static WebSocketService webSocketService;
 
     @Autowired
-    public void setVehicleService(VehicleService vehicleService) {
-        WebSocketEndpoint.vehicleService = vehicleService;
+    public void setMovingService(MovingService movingService) {
+        WebSocketEndpoint.movingService = movingService;
     }
 
     @Autowired
@@ -48,7 +48,7 @@ public class WebSocketEndpoint {
 
     @OnMessage
     public void receive(Session session, NextStationRequestDTO request) {
-        NextStationDTO nextStation = vehicleService.getNextStation(session.getId(), request);
+        NextStationDTO nextStation = movingService.getNextStation(session.getId(), request);
         session.getAsyncRemote().sendObject(nextStation);
     }
 

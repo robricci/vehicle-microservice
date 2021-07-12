@@ -21,10 +21,15 @@ public class Ride implements Serializable {
     public Ride() {
         this.pickPoints = new ArrayList<>();
         this.route = new ArrayList<>();
+        this.initialWaitingDate = new Date();
+        this.moving = false;
     }
 
     public Ride(List<Station> route) {
+        this.pickPoints = new ArrayList<>();
         this.route = route;
+        this.initialWaitingDate = new Date();
+        this.moving = false;
     }
 
     public Station getCurrentStation() {
