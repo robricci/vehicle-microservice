@@ -108,15 +108,20 @@ public class MovingService {
                 }
             }
 
-            // send displacement station to each vehicles
+            // send displacement station to topic (each vehicle-ms instance get only Displacement
             for (Vehicle v : vehicleList) {
-                NextStationDTO nextStationDTO = new NextStationDTO(v.getRide().getCurrentStation());
-                try {
-                    this.webSocketService.sendMessage(v.getLicensePlate(), nextStationDTO);
-                } catch (WebSocketClientNotFoundException e) {
-                    logger.info(e.getMessage());
-                }
+                VehicleDisplacementDTO vehicleDisplacement = new VehicleDisplacementDTO(v.getLicensePlate(), v.getRide().getCurrentStation());
+                this.artemisService.send(artemisService.getVehicleDisplacementTopic(), vehicleDisplacement);
             }
+        }
+    }
+
+    public void sendDisplacementNotification(VehicleDisplacementDTO vehicleDisplacement) {
+        try {
+            NextStationDTO nextStationDTO = new NextStationDTO(vehicleDisplacement.getNextStation());
+            this.webSocketService.sendMessage(vehicleDisplacement.getLicensePlate(), nextStationDTO);
+        } catch (WebSocketClientNotFoundException e) {
+            logger.info(e.getMessage());
         }
     }
 
@@ -182,14 +187,20 @@ public class MovingService {
         String licensePlate = this.webSocketService.getLicensePlateFromWebsocket(sessionId);
         Optional<Vehicle> vehicleOptional = this.vehicleRepository.findByLicensePlate(licensePlate);
 
-        if (vehicleOptional.isPresent() && vehicleOptional.get().getRide() != null
-                && vehicleOptional.get().getRide().getPickPoints() != null) {
+        if (vehicleOptional.isPresent()
+                && vehicleOptional.get().getRide() != null
+                && vehicleOptional.get().getRide().getPickPoints() != null
+                && request != null) {
 
             Vehicle vehicle = vehicleOptional.get();
             List<PickPoint> pickPoints = vehicle.getRide().getPickPoints();
 
             // Updating PickPoint for vehicle
+
             Station currentStation = request.getCurrentStation();
+            Intersection intersection = this.trafficService.getIntersections(currentStation.getNodeId());
+            currentStation.setPosition(intersection.getCoordinate());
+
             Iterator<PickPoint> iterator = pickPoints.iterator();
             vehicle.getRide().setCurrentStation(currentStation);
             int numPickPoints = pickPoints.size();
@@ -212,6 +223,9 @@ public class MovingService {
 
 
             nextStation = this.findNextStation(pickPoints, vehicle.getRide().getRoute(), vehicle.getRide().getCurrentStation());
+        } else if (vehicleOptional.isPresent()
+                && vehicleOptional.get().getRide() != null) {
+            nextStation = new NextStationDTO(vehicleOptional.get().getRide().getCurrentStation());
         }
 
         return nextStation;

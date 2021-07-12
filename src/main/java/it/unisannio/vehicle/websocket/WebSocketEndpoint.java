@@ -36,9 +36,12 @@ public class WebSocketEndpoint {
         if (queryMap != null && queryMap.get("licensePlate") != null) {
             webSocketService.addPeer(session, queryMap.get("licensePlate"));
             logger.info("A WS connection has been established");
-        } else
+            // Send next station generated from previous displacement
+            session.getAsyncRemote().sendObject(movingService.getNextStation(session.getId(), null));
+        } else {
             logger.info("licensePlate not found in websocket query string");
             throw new Exception();
+        }
     }
    
     @OnClose

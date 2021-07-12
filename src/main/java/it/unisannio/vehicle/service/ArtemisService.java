@@ -13,6 +13,9 @@ public class ArtemisService {
     @Value("${jms.topic.trip-confirmation}")
     private String tripConfirmationTopic;
 
+    @Value("${jms.topic.vehicle-displacement}")
+    private String vehicleDisplacementTopic;
+
     private JmsTemplate jmsTemplate;
 
     @Autowired
@@ -26,5 +29,9 @@ public class ArtemisService {
 
     public String getTripConfirmationTopic() {
         return tripConfirmationTopic;
+    }
+
+    public String getVehicleDisplacementTopic() {
+        return vehicleDisplacementTopic;
     }
 }

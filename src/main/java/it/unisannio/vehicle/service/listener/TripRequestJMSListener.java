@@ -16,13 +16,13 @@ import javax.jms.Message;
 import javax.jms.TextMessage;
 
 @Service
-public class TripRequestListenerService {
+public class TripRequestJMSListener {
 
     private ObjectMapper objectMapper;
     private MovingService movingService;
 
     @Autowired
-    public TripRequestListenerService(ObjectMapper objectMapper, MovingService movingService) {
+    public TripRequestJMSListener(ObjectMapper objectMapper, MovingService movingService) {
         this.objectMapper = objectMapper;
         this.movingService = movingService;
     }
