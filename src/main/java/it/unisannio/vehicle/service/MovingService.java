@@ -30,11 +30,12 @@ public class MovingService {
     private ArtemisService artemisService;
 
     @Autowired
-    public MovingService(TripService tripService, VehicleRepository vehicleRepository, WebSocketService webSocketService, TrafficService trafficService) {
+    public MovingService(TripService tripService, VehicleRepository vehicleRepository, WebSocketService webSocketService, TrafficService trafficService, ArtemisService artemisService) {
         this.tripService = tripService;
         this.vehicleRepository = vehicleRepository;
         this.webSocketService = webSocketService;
         this.trafficService = trafficService;
+        this.artemisService = artemisService;
     }
 
     public void displacement() {

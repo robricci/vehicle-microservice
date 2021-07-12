@@ -31,6 +31,7 @@ public class CronJobs {
     @SchedulerLock(name = "checkVehicleTemporalParameters", lockAtLeastFor = "2m")
     public void checkVehicleTemporalParameters() {
         LockAssert.assertLocked();
-        this.movingService.checkVehicleTemporalParameters();
+        // TODO uncomment
+        // this.movingService.checkVehicleTemporalParameters();
     }
 }
