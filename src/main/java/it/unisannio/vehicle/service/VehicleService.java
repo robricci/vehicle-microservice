@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
@@ -41,16 +42,27 @@ public class VehicleService {
         return VehicleDTO.convert(vehicles);
     }
 
-    public VehicleDTO getVehicleInfo(String id) {
+    public VehicleDTO getVehicleInfo(String licensePlate) {
         VehicleDTO vehicleDTO = null;
-        Optional<Vehicle> vehicle = this.vehicleRepository.findById(id);
+        Optional<Vehicle> vehicle = this.vehicleRepository.findByLicensePlate(licensePlate);
         if (vehicle.isPresent()) {
             vehicleDTO = new VehicleDTO(vehicle.get());
         }
         return vehicleDTO;
     }
 
+    public void settingParams(String licensePlate, VehicleParamDTO vehicleParam) {
+        Optional<Vehicle> vehicle = this.vehicleRepository.findByLicensePlate(licensePlate);
+        if (vehicle.isPresent()) {
+            vehicle.get().setOccupancyTarget(vehicleParam.getOccupancyTarget());
+            vehicle.get().setWaitingTimeTarget(vehicleParam.getWaitingTimeTarget());
+            vehicle.get().setInertialTimeTarget(vehicleParam.getInertialTime());
+            this.vehicleRepository.save(vehicle.get());
+        }
+    }
+
     public void insertVehicles(List<InsertVehicleDTO> vehicleList) {
+        List<String> licensePlates = new ArrayList<>();
         for (InsertVehicleDTO newVehicle : vehicleList) {
             Vehicle v = new Vehicle(
                     newVehicle.getLicensePlate(),
@@ -59,13 +71,30 @@ public class VehicleService {
                     newVehicle.getOccupancyTarget(),
                     newVehicle.getInertialTimeTarget());
             this.vehicleRepository.insert(v);
+            licensePlates.add(newVehicle.getLicensePlate());
         }
+        this.displacement(licensePlates);
+    }
+
+    public boolean removeVehicle(String licensePlate) {
+        Optional<Vehicle> removedVehicle = this.vehicleRepository.findByLicensePlateAndOccupiedSeatsAndRemove(licensePlate, 0);
+        return removedVehicle.isPresent();
     }
 
     public void displacement() {
+        this.displacement(null);
+    }
+
+    public void displacement(List<String> licensePlates) {
+        List<Vehicle> vehicleList;
+        if (licensePlates != null) {
+            vehicleList = this.vehicleRepository.getAllStoppedVehiclesWithLicensePlate(licensePlates);
+        } else {
+            vehicleList = this.vehicleRepository.getAllStoppedVehicles();
+        }
+
         StatisticsDTO statistics = this.tripService.getTripStatistics();
         List<RouteStatsDTO> routeStatsList = statistics.getRouteStatsList();
-        List<Vehicle> vehicleList = this.vehicleRepository.getAllStoppedVehicles();
         int numberOfAvailableVehicles = vehicleList.size();
         int vehicleElem = 0;
         Ride ride;
