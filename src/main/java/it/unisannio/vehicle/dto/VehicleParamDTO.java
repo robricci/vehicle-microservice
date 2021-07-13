@@ -6,14 +6,14 @@ public class VehicleParamDTO implements Serializable {
 
     private int occupancyTarget;
     private int waitingTimeTarget;
-    private int inertialTime;
+    private int inertialTimeTarget;
 
     public VehicleParamDTO() { }
 
-    public VehicleParamDTO(int occupancyTarget, int waitingTimeTarget, int inertialTime) {
+    public VehicleParamDTO(int occupancyTarget, int waitingTimeTarget, int inertialTimeTarget) {
         this.occupancyTarget = occupancyTarget;
         this.waitingTimeTarget = waitingTimeTarget;
-        this.inertialTime = inertialTime;
+        this.inertialTimeTarget = inertialTimeTarget;
     }
 
     public int getOccupancyTarget() {
@@ -32,11 +32,11 @@ public class VehicleParamDTO implements Serializable {
         this.waitingTimeTarget = waitingTimeTarget;
     }
 
-    public int getInertialTime() {
-        return inertialTime;
+    public int getInertialTimeTarget() {
+        return inertialTimeTarget;
     }
 
-    public void setInertialTime(int inertialTime) {
-        this.inertialTime = inertialTime;
+    public void setInertialTimeTarget(int inertialTimeTarget) {
+        this.inertialTimeTarget = inertialTimeTarget;
     }
 }

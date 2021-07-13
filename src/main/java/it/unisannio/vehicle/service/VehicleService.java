@@ -43,7 +43,7 @@ public class VehicleService {
         if (vehicle.isPresent()) {
             vehicle.get().setOccupancyTarget(vehicleParam.getOccupancyTarget());
             vehicle.get().setWaitingTimeTarget(vehicleParam.getWaitingTimeTarget());
-            vehicle.get().setInertialTimeTarget(vehicleParam.getInertialTime());
+            vehicle.get().setInertialTimeTarget(vehicleParam.getInertialTimeTarget());
             this.vehicleRepository.save(vehicle.get());
         }
     }
