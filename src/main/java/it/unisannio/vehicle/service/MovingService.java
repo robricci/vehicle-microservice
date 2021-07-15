@@ -65,6 +65,7 @@ public class MovingService {
                 ride.setCurrentStation(
                         new Station(routeStats.getStations().get(0).getNodeId(), routeStats.getStations().get(0).getPosition()));
                 vehicleList.get(vehicleElem).setRide(ride);
+                ride.setRouteId(routeStats.getId());
                 this.vehicleRepository.save(vehicleList.get(vehicleElem));
                 vehicleElem++;
                 numberOfAvailableVehicles--;
@@ -78,6 +79,7 @@ public class MovingService {
                 if (routeStats.getRequests() == 0) {
                     ride = new Ride(Utils.convertStationStatsDtoListToStationList(routeStats.getStations()));
                     ride.setCurrentStation(ride.getRoute().get(0));
+                    ride.setRouteId(routeStats.getId());
                     vehicleList.get(vehicleElem).setRide(ride);
                     this.vehicleRepository.save(vehicleList.get(vehicleElem));
                     vehicleElem++;
@@ -100,6 +102,7 @@ public class MovingService {
 
                         for (int i = vehicleElem; i < vehicleElem + vehiclesStation; i++) {
                             vehicleList.get(i).setRide(ride);
+                            ride.setRouteId(routeStats.getId());
                             this.vehicleRepository.save(vehicleList.get(i));
                             vehiclesAlreadyAssigned++;
                         }

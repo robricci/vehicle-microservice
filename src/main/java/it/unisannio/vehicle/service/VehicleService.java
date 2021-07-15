@@ -86,6 +86,7 @@ public class VehicleService {
                     for (Station sta : route.getStations()) {
                         if (sta.equals(manualDisplacement.getStation())) {
                             vehicle.get().getRide().setRoute(route.getStations());
+                            vehicle.get().getRide().setRouteId(route.getId());
                             vehicle.get().getRide().setCurrentStation(sta);
                             vehicle.get().getRide().setInitialWaitingDate(new Date());
                             this.vehicleRepository.save(vehicle.get());

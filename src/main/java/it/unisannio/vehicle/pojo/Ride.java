@@ -13,6 +13,7 @@ public class Ride implements Serializable {
     private static final long serialVersionUID = 6744782914717822071L;
 
     private Station currentStation;
+    private String routeId;
     private List<Station> route;
     private List<PickPoint> pickPoints;
     private boolean moving;
@@ -38,6 +39,14 @@ public class Ride implements Serializable {
 
     public void setCurrentStation(Station currentStation) {
         this.currentStation = currentStation;
+    }
+
+    public String getRouteId() {
+        return routeId;
+    }
+
+    public void setRouteId(String routeId) {
+        this.routeId = routeId;
     }
 
     public List<Station> getRoute() {

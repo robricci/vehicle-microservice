@@ -37,7 +37,7 @@ public class VehicleController {
     @Path("/{id}")
     public Response getVehicleInfo(@PathParam(value = "id") String licensePlate) {
         VehicleDTO vehicleInfo = this.vehicleService.getVehicleInfo(licensePlate);
-        return ((vehicleInfo != null) ? Response.ok(vehicleInfo) : Response.noContent()).build();
+        return ((vehicleInfo != null) ? Response.ok(vehicleInfo) : Response.status(Response.Status.NOT_FOUND)).build();
     }
 
     @POST
@@ -50,7 +50,7 @@ public class VehicleController {
     @Path("/{id}")
     public Response deleteVehicle(@PathParam(value = "id") String licensePlate) {
         boolean isRemoved = this.vehicleService.removeVehicle(licensePlate);
-        return Response.ok(isRemoved).build();
+        return ((isRemoved) ? Response.ok() : Response.status(Response.Status.NOT_FOUND)).build();
     }
 
     @POST

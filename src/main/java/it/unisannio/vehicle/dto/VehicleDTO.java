@@ -24,6 +24,7 @@ public class VehicleDTO implements Serializable {
     private Boolean moving;
     private Date initialWaitingDate;
     private Station currentStation;
+    private String routeId;
     private List<Station> route;
     private List<PickPoint> pickPoint;
 
@@ -44,6 +45,7 @@ public class VehicleDTO implements Serializable {
             this.currentStation = vehicle.getRide().getCurrentStation();
             this.initialWaitingDate = vehicle.getRide().getInitialWaitingDate();
             this.route = vehicle.getRide().getRoute();
+            this.routeId = vehicle.getRide().getRouteId();
             this.pickPoint = vehicle.getRide().getPickPoints();
         }
     }
@@ -138,6 +140,14 @@ public class VehicleDTO implements Serializable {
 
     public void setCurrentStation(Station currentStation) {
         this.currentStation = currentStation;
+    }
+
+    public String getRouteId() {
+        return routeId;
+    }
+
+    public void setRouteId(String routeId) {
+        this.routeId = routeId;
     }
 
     public List<Station> getRoute() {
