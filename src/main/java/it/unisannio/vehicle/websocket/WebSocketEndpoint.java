@@ -13,7 +13,9 @@ import javax.websocket.*;
 import javax.websocket.server.ServerEndpoint;
 import java.util.Map;
 
-@ServerEndpoint(value = "/api/drivers", decoders = { NextStationRequestDecoder.class })
+@ServerEndpoint(value = "/api/drivers",
+        decoders = { NextStationRequestDecoder.class },
+        encoders = { NextStationResponseEncoder.class })
 public class WebSocketEndpoint {
 
     private final Logger logger = LoggerFactory.getLogger(WebSocketEndpoint.class);
