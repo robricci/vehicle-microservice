@@ -2,6 +2,7 @@ package it.unisannio.vehicle.controller;
 
 
 import it.unisannio.vehicle.dto.InsertVehicleDTO;
+import it.unisannio.vehicle.dto.ManualDisplacementDTO;
 import it.unisannio.vehicle.dto.VehicleDTO;
 import it.unisannio.vehicle.dto.VehicleParamDTO;
 import it.unisannio.vehicle.service.VehicleService;
@@ -50,6 +51,13 @@ public class VehicleController {
     public Response deleteVehicle(@PathParam(value = "id") String licensePlate) {
         boolean isRemoved = this.vehicleService.removeVehicle(licensePlate);
         return Response.ok(isRemoved).build();
+    }
+
+    @POST
+    @Path("/{id}/displacement")
+    public Response manualDisplacement(@PathParam(value = "id") String licensePlate, ManualDisplacementDTO manualDisplacement) {
+        boolean isDisplaced = this.vehicleService.manualDisplacement(licensePlate, manualDisplacement);
+        return Response.ok(isDisplaced).build();
     }
 
     @POST

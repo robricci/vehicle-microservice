@@ -1,6 +1,8 @@
 package it.unisannio.vehicle.service;
 
 import it.unisannio.vehicle.dto.*;
+import it.unisannio.vehicle.dto.internal.RouteDTO;
+import it.unisannio.vehicle.dto.internal.Station;
 import it.unisannio.vehicle.model.Vehicle;
 import it.unisannio.vehicle.repository.VehicleRepository;
 import org.slf4j.Logger;
@@ -17,11 +19,13 @@ public class VehicleService {
 
     private VehicleRepository vehicleRepository;
     private MovingService movingService;
+    private TripService tripService;
 
     @Autowired
-    public VehicleService(VehicleRepository vehicleRepository, MovingService movingService) {
+    public VehicleService(VehicleRepository vehicleRepository, MovingService movingService, TripService tripService) {
         this.vehicleRepository = vehicleRepository;
         this.movingService = movingService;
+        this.tripService = tripService;
     }
 
     public List<VehicleDTO> getVehiclesInfo() {
@@ -66,5 +70,32 @@ public class VehicleService {
     public boolean removeVehicle(String licensePlate) {
         Optional<Vehicle> removedVehicle = this.vehicleRepository.findByLicensePlateAndOccupiedSeatsAndRemove(licensePlate, 0);
         return removedVehicle.isPresent();
+    }
+
+    public boolean manualDisplacement(String licensePlate, ManualDisplacementDTO manualDisplacement) {
+        Optional<Vehicle> vehicle = this.vehicleRepository.findByLicensePlate(licensePlate);
+        if (vehicle.isPresent()
+                && !vehicle.get().getRide().isMoving()
+                && vehicle.get().getOccupiedSeats() == 0
+                && (vehicle.get().getRide().getPickPoints() == null
+                || vehicle.get().getRide().getPickPoints().size() == 0) ) {
+            List<RouteDTO> routes = this.tripService.getRoutes();
+            Station currentStation = vehicle.get().getRide().getCurrentStation();
+            for (RouteDTO route : routes) {
+                if (route.getId().equals(manualDisplacement.getRouteId())) {
+                    for (Station sta : route.getStations()) {
+                        if (sta.equals(manualDisplacement.getStation())) {
+                            vehicle.get().getRide().setRoute(route.getStations());
+                            vehicle.get().getRide().setCurrentStation(sta);
+                            vehicle.get().getRide().setInitialWaitingDate(new Date());
+                            this.vehicleRepository.save(vehicle.get());
+                            this.movingService.manualDisplacementNotification(licensePlate, currentStation, vehicle.get().getRide().getCurrentStation());
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+        return false;
     }
 }

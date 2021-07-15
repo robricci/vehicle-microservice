@@ -165,10 +165,20 @@ public class MovingService {
         }
 
         vehicle.getRide().setMoving(true);
+        this.vehicleRepository.save(vehicle);
         NextStationDTO nextStationDTO = findNextStation(vehicle.getRide().getPickPoints(), vehicle.getRide().getRoute(), vehicle.getRide().getCurrentStation());
+        this.sendNotificationToVehicle(vehicle.getLicensePlate(), nextStationDTO);
+    }
+
+    public void manualDisplacementNotification(String licensePlate, Station source, Station destination) {
+        List<Coordinate> minPath = this.trafficService.shortestPath(source.getNodeId(), destination.getNodeId());
+        NextStationDTO nextStation = new NextStationDTO(destination, minPath);
+        this.sendNotificationToVehicle(licensePlate, nextStation);
+    }
+
+    public void sendNotificationToVehicle(String licensePlate, NextStationDTO nextStation) {
         try {
-            this.webSocketService.sendMessage(vehicle.getLicensePlate(), nextStationDTO);
-            this.vehicleRepository.save(vehicle);
+            this.webSocketService.sendMessage(licensePlate, nextStation);
         } catch (WebSocketClientNotFoundException e) {
             logger.info(e.getMessage());
         }
