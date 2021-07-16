@@ -204,7 +204,7 @@ public class MovingService {
         if (vehicleOptional.isPresent()
                 && vehicleOptional.get().getRide() != null
                 && vehicleOptional.get().getRide().getPickPoints() != null
-                && vehicleOptional.get().getOccupiedSeats() >= vehicleOptional.get().getOccupancyTarget()
+                && vehicleOptional.get().getRide().isMoving()
                 && request != null) {
 
             Vehicle vehicle = vehicleOptional.get();
@@ -215,10 +215,9 @@ public class MovingService {
             Station currentStation = request.getCurrentStation();
             Intersection intersection = this.trafficService.getIntersections(currentStation.getNodeId());
             currentStation.setPosition(intersection.getCoordinate());
+            vehicle.getRide().setCurrentStation(currentStation);
 
             Iterator<PickPoint> iterator = pickPoints.iterator();
-            vehicle.getRide().setCurrentStation(currentStation);
-            int numPickPoints = pickPoints.size();
             while (iterator.hasNext()) {
                 PickPoint pp = iterator.next();
                 if (pp.getDestinationNodeId().equals(currentStation.getNodeId()) && pp.getStatus().equals(PickPoint.Status.ONBOARDED)) {
@@ -229,14 +228,21 @@ public class MovingService {
                 }
             }
 
-            // reset initialWaitingDate if vehicle return to 0 passengers
-            if (numPickPoints > 0 && vehicle.getRide().getPickPoints().size() == 0)
-                vehicle.getRide().setInitialWaitingDate(new Date());
-
             vehicle.getRide().setPickPoints(pickPoints);
             this.vehicleRepository.save(vehicle);
 
             nextStation = this.findNextStation(pickPoints, vehicle.getRide().getRoute(), vehicle.getRide().getCurrentStation());
+        } else if (vehicleOptional.isPresent()
+                && vehicleOptional.get().getRide() != null
+                && vehicleOptional.get().getRide().getPickPoints() != null
+                && vehicleOptional.get().getRide().getPickPoints().size() == 0
+                && vehicleOptional.get().getRide().isMoving()) {
+
+            // reset initialWaitingDate and set Moving to false if vehicle is in movement and no passengers to release
+            vehicleOptional.get().getRide().setInitialWaitingDate(new Date());
+            vehicleOptional.get().getRide().setMoving(false);
+            this.vehicleRepository.save(vehicleOptional.get());
+
         } else if (vehicleOptional.isPresent()
                 && vehicleOptional.get().getRide() != null) {
             nextStation = new NextStationDTO(vehicleOptional.get().getRide().getCurrentStation());
