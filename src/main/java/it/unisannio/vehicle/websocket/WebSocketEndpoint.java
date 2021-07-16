@@ -54,7 +54,8 @@ public class WebSocketEndpoint {
     @OnMessage
     public void receive(Session session, NextStationRequestDTO request) {
         NextStationDTO nextStation = movingService.getNextStation(session.getId(), request);
-        session.getAsyncRemote().sendObject(nextStation);
+        if (nextStation != null)
+            session.getAsyncRemote().sendObject(nextStation);
     }
 
     @OnError

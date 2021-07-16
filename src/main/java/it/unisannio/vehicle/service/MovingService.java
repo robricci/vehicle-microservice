@@ -239,7 +239,8 @@ public class MovingService {
 
             nextStation = this.findNextStation(pickPoints, vehicle.getRide().getRoute(), vehicle.getRide().getCurrentStation());
         } else if (vehicleOptional.isPresent()
-                && vehicleOptional.get().getRide() != null) {
+                && vehicleOptional.get().getRide() != null
+                && request == null) {
             nextStation = new NextStationDTO(vehicleOptional.get().getRide().getCurrentStation());
         }
 
