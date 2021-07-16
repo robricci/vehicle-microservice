@@ -229,20 +229,15 @@ public class MovingService {
             }
 
             vehicle.getRide().setPickPoints(pickPoints);
+
+            if (pickPoints.size() == 0) {
+                vehicleOptional.get().getRide().setInitialWaitingDate(new Date());
+                vehicleOptional.get().getRide().setMoving(false);
+            }
+
             this.vehicleRepository.save(vehicle);
 
             nextStation = this.findNextStation(pickPoints, vehicle.getRide().getRoute(), vehicle.getRide().getCurrentStation());
-        } else if (vehicleOptional.isPresent()
-                && vehicleOptional.get().getRide() != null
-                && vehicleOptional.get().getRide().getPickPoints() != null
-                && vehicleOptional.get().getRide().getPickPoints().size() == 0
-                && vehicleOptional.get().getRide().isMoving()) {
-
-            // reset initialWaitingDate and set Moving to false if vehicle is in movement and no passengers to release
-            vehicleOptional.get().getRide().setInitialWaitingDate(new Date());
-            vehicleOptional.get().getRide().setMoving(false);
-            this.vehicleRepository.save(vehicleOptional.get());
-
         } else if (vehicleOptional.isPresent()
                 && vehicleOptional.get().getRide() != null) {
             nextStation = new NextStationDTO(vehicleOptional.get().getRide().getCurrentStation());
