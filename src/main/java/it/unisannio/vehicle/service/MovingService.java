@@ -204,6 +204,7 @@ public class MovingService {
         if (vehicleOptional.isPresent()
                 && vehicleOptional.get().getRide() != null
                 && vehicleOptional.get().getRide().getPickPoints() != null
+                && vehicleOptional.get().getOccupiedSeats() >= vehicleOptional.get().getOccupancyTarget()
                 && request != null) {
 
             Vehicle vehicle = vehicleOptional.get();
@@ -234,7 +235,6 @@ public class MovingService {
 
             vehicle.getRide().setPickPoints(pickPoints);
             this.vehicleRepository.save(vehicle);
-
 
             nextStation = this.findNextStation(pickPoints, vehicle.getRide().getRoute(), vehicle.getRide().getCurrentStation());
         } else if (vehicleOptional.isPresent()
