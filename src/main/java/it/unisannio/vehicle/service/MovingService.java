@@ -283,7 +283,7 @@ public class MovingService {
                     nextStation = new NextStationDTO(route.get(i), minPath);
                     break;
                 }
-                i = i + 1 % route.size();
+                i = (i + 1) % route.size();
                 iterations++;
             }
         }
