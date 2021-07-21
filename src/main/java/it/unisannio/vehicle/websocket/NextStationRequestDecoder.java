@@ -30,12 +30,8 @@ public class NextStationRequestDecoder implements Decoder.Text<NextStationReques
     }
 
     @Override
-    public void init(EndpointConfig ec) {
-        System.out.println("NextStationRequestDecoder - init method called");
-    }
+    public void init(EndpointConfig ec) { }
 
     @Override
-    public void destroy() {
-        System.out.println("NextStationRequestDecoder - destroy method called");
-    }
+    public void destroy() { }
 }

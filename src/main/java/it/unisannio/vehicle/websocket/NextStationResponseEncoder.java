@@ -24,12 +24,8 @@ public class NextStationResponseEncoder implements Encoder.Text<NextStationDTO>{
 	  }
 
 	  @Override
-	  public void init(EndpointConfig ec) {
-	    System.out.println("NextStationResponseEncoder - init method called");
-	  }
+	  public void init(EndpointConfig ec) { }
 
 	  @Override
-	  public void destroy() {
-	    System.out.println("NextStationResponseEncoder - destroy method called");
-	  }
+	  public void destroy() { }
 }
