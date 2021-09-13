@@ -10,6 +10,7 @@ import it.unisannio.vehicle.service.MovingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jms.annotation.JmsListener;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.jms.JMSException;
 import javax.jms.Message;
@@ -28,7 +29,8 @@ public class TripRequestJMSListener {
     }
 
     @JmsListener(destination = "${jms.topic.trip-request}")
-    private void receive(Message message) throws JMSException, JsonProcessingException {
+    @Transactional
+    public void receive(Message message) throws JMSException, JsonProcessingException {
         if (!(message instanceof TextMessage)) throw new IllegalArgumentException("Message must be of type TextMessage");
         TripDTO tripDTO;
         try {

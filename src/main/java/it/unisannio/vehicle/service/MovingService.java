@@ -4,6 +4,10 @@ import it.unisannio.vehicle.Utils;
 import it.unisannio.vehicle.dto.NextStationDTO;
 import it.unisannio.vehicle.dto.NextStationRequestDTO;
 import it.unisannio.vehicle.dto.PickPoint;
+import it.unisannio.vehicle.dto.external.Prediction;
+import it.unisannio.vehicle.dto.external.PredictionZonesResponse;
+import it.unisannio.vehicle.dto.external.ZonesRequest;
+import it.unisannio.vehicle.dto.external.ZonesResponse;
 import it.unisannio.vehicle.dto.internal.*;
 import it.unisannio.vehicle.model.Vehicle;
 import it.unisannio.vehicle.pojo.Ride;
@@ -14,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -27,21 +32,26 @@ public class MovingService {
     private VehicleRepository vehicleRepository;
     private WebSocketService webSocketService;
     private TrafficService trafficService;
+    private MessinaService messinaService;
     private ArtemisService artemisService;
 
     @Autowired
-    public MovingService(TripService tripService, VehicleRepository vehicleRepository, WebSocketService webSocketService, TrafficService trafficService, ArtemisService artemisService) {
+    public MovingService(TripService tripService, VehicleRepository vehicleRepository,
+                         WebSocketService webSocketService, TrafficService trafficService,
+                         ArtemisService artemisService, MessinaService messinaService) {
         this.tripService = tripService;
         this.vehicleRepository = vehicleRepository;
         this.webSocketService = webSocketService;
         this.trafficService = trafficService;
         this.artemisService = artemisService;
+        this.messinaService = messinaService;
     }
 
     public void displacement() {
         this.displacement(null);
     }
 
+    @Transactional
     public void displacement(List<String> licensePlates) {
         List<Vehicle> vehicleList;
         if (licensePlates != null) {
@@ -50,12 +60,13 @@ public class MovingService {
             vehicleList = this.vehicleRepository.getAllStoppedVehicles();
         }
 
-        StatisticsDTO statistics = this.tripService.getTripStatistics();
-        List<RouteStatsDTO> routeStatsList = statistics.getRouteStatsList();
+        StatisticsDTO statisticsDTO = prepareStatistics();
+        List<RouteStatsDTO> routeStatsList = statisticsDTO.getRouteStatsList();
+
         int numberOfAvailableVehicles = vehicleList.size();
         int vehicleElem = 0;
         Ride ride;
-        if (routeStatsList != null && numberOfAvailableVehicles > 0) {
+        if (numberOfAvailableVehicles > 0) {
 
             // assign one vehicle for each route
             for (RouteStatsDTO routeStats : routeStatsList) {
@@ -85,7 +96,7 @@ public class MovingService {
                     vehicleElem++;
                     numberOfAvailableVehicles--;
                 } else {
-                    int p = (int) Math.round((double)routeStats.getRequests() / (double)statistics.getAllTripRequests() * 100);
+                    int p = (int) Math.round((double)routeStats.getRequests() / (double)statisticsDTO.getAllTripRequests() * 100);
                     // vehiclesToAssignAtRoute: number of vehicles with the same route
                     final int vehiclesToAssignAtRoute = (int) Math.round((double) p * totalVehicles / 100);
                     ride = new Ride(Utils.convertStationStatsDtoListToStationList(routeStats.getStations()));
@@ -129,6 +140,7 @@ public class MovingService {
         }
     }
 
+    @Transactional
     public VehicleStatus requestAssignment(TripDTO trip) {
         VehicleStatus vehicleStatus = null;
 
@@ -322,5 +334,74 @@ public class MovingService {
             destFound = destFound || pickPoint.getSourceNodeId().equals(destNodeId) || pickPoint.getDestinationNodeId().equals(destNodeId);
         }
         return srcFound && destFound;
+    }
+
+    private Map<Integer, Integer> prepareStationZoneMap(Map<Integer, List<Integer>> map) {
+        Map<Integer, Integer> result = new HashMap<>();
+
+        for (Map.Entry<Integer, List<Integer>> entry : map.entrySet()) {
+            for (Integer stationId : entry.getValue()) {
+                result.put(stationId, entry.getKey());
+            }
+        }
+
+        return result;
+    }
+
+    private Map<Integer, Integer> prepareZonePredictionMap(List<Prediction> predictionList) {
+        Map<Integer, Integer> result = new HashMap<>();
+
+        for (Prediction prediction : predictionList) {
+            result.put(prediction.getZoneId(), prediction.getNumberOfRequests());
+        }
+
+        return result;
+    }
+
+    private StatisticsDTO prepareStatistics() {
+        List<RouteDTO> routes = this.tripService.getRoutes();
+        List<Station> stationList = new ArrayList<>();
+        for (RouteDTO route : routes) {
+            stationList.addAll(route.getStations());
+        }
+        ZonesResponse zonesResponse = this.messinaService.getZonesByGeolocation(new ZonesRequest(stationList));
+        Map<Integer, Integer> stationZoneMap = prepareStationZoneMap(zonesResponse.getResult());
+
+        PredictionZonesResponse predictionPerZones = this.messinaService.getPredictionPerZones();
+        Map<Integer, Integer> zonePredictionMap = prepareZonePredictionMap(predictionPerZones.getResult());
+
+        List<RouteStatsDTO> routeStatsList = new ArrayList<>();
+
+        int allPrediction = 0;
+        for (RouteDTO route : routes) {
+            RouteStatsDTO routeStatsDTO = new RouteStatsDTO();
+            routeStatsDTO.setId(route.getId());
+
+            int stationsPerRoute = route.getStations().size();
+            int requestsPerRoute = 0;
+
+            List<StationStatsDTO> stationStatsDTOList = new ArrayList<>();
+            for (Station station : route.getStations()) {
+                StationStatsDTO stationStatsDTO = new StationStatsDTO();
+                stationStatsDTO.setNodeId(station.getNodeId());
+                stationStatsDTO.setPosition(station.getPosition());
+
+                int zoneId = stationZoneMap.get(station.getNodeId());
+                int requestsPerStations = zonePredictionMap.get(zoneId) / stationsPerRoute;
+
+                stationStatsDTO.setRequests(requestsPerStations);
+                requestsPerRoute += requestsPerStations;
+
+                stationStatsDTOList.add(stationStatsDTO);
+            }
+
+            allPrediction += requestsPerRoute;
+            routeStatsDTO.setRequests(requestsPerRoute);
+            routeStatsDTO.setStations(stationStatsDTOList);
+
+            routeStatsList.add(routeStatsDTO);
+        }
+
+        return new StatisticsDTO(allPrediction, routeStatsList);
     }
 }
