@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 
 
-@FeignClient(name = "messinaServiceFeignClient", url = "${api.external.prediction.base-url}")
+@FeignClient(name = "messinaServiceFeignClient", url = "${api.external.messina.base-url}")
 public interface MessinaService {
 
     @PostMapping("/getZonesByGeolocation")
