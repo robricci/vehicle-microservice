@@ -60,13 +60,17 @@ public class MovingService {
             vehicleList = this.vehicleRepository.getAllStoppedVehicles();
         }
 
-        StatisticsDTO statisticsDTO = prepareStatistics();
-        List<RouteStatsDTO> routeStatsList = statisticsDTO.getRouteStatsList();
+        // StatisticsDTO statisticsDTO = prepareStatistics();
+        // List<RouteStatsDTO> routeStatsList = statisticsDTO.getRouteStatsList();
+
+        StatisticsDTO statistics = this.tripService.getTripStatistics();
+        List<RouteStatsDTO> routeStatsList = statistics.getRouteStatsList();
 
         int numberOfAvailableVehicles = vehicleList.size();
         int vehicleElem = 0;
         Ride ride;
-        if (numberOfAvailableVehicles > 0) {
+        // if (numberOfAvailableVehicles > 0) {
+        if (routeStatsList != null && numberOfAvailableVehicles > 0) {
 
             // assign one vehicle for each route
             for (RouteStatsDTO routeStats : routeStatsList) {
@@ -96,7 +100,7 @@ public class MovingService {
                     vehicleElem++;
                     numberOfAvailableVehicles--;
                 } else {
-                    int p = (int) Math.round((double)routeStats.getRequests() / (double)statisticsDTO.getAllTripRequests() * 100);
+                    int p = (int) Math.round((double)routeStats.getRequests() / (double)statistics.getAllTripRequests() * 100); // statisticsDTO
                     // vehiclesToAssignAtRoute: number of vehicles with the same route
                     final int vehiclesToAssignAtRoute = (int) Math.round((double) p * totalVehicles / 100);
                     ride = new Ride(Utils.convertStationStatsDtoListToStationList(routeStats.getStations()));
