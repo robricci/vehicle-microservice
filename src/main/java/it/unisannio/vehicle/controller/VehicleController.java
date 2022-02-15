@@ -52,14 +52,14 @@ public class VehicleController {
         boolean isRemoved = this.vehicleService.removeVehicle(licensePlate);
         return ((isRemoved) ? Response.ok() : Response.status(Response.Status.NOT_FOUND)).build();
     }
-
+/*
     @POST
     @Path("/{id}/displacement")
     public Response manualDisplacement(@PathParam(value = "id") String licensePlate, ManualDisplacementDTO manualDisplacement) {
         boolean isDisplaced = this.vehicleService.manualDisplacement(licensePlate, manualDisplacement);
         return Response.ok(isDisplaced).build();
     }
-
+*/
     @POST
     @Path("/{id}/configuration")
     public Response settingParams(@PathParam(value = "id") String licensePlate, VehicleParamDTO vehicleParam) {

@@ -1,0 +1,16 @@
+language: java
+os : linux
+jdk: oraclejdk11
+
+services : mongo
+
+
+script: ./mvnw install
+
+before_install:
+  - chmod +x mvnw
+
+
+notifications:
+  on_success: always
+  on_failure: always

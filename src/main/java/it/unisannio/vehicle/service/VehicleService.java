@@ -66,14 +66,14 @@ public class VehicleService {
             this.vehicleRepository.insert(v);
             licensePlates.add(newVehicle.getLicensePlate());
         }
-        this.movingService.displacement(licensePlates);
+      //  this.movingService.displacement(licensePlates);
     }
 
     public boolean removeVehicle(String licensePlate) {
         Optional<Vehicle> removedVehicle = this.vehicleRepository.findByLicensePlateAndOccupiedSeatsAndRemove(licensePlate, 0);
         return removedVehicle.isPresent();
     }
-
+/*
     public boolean manualDisplacement(String licensePlate, ManualDisplacementDTO manualDisplacement) {
         Optional<Vehicle> vehicle = this.vehicleRepository.findByLicensePlate(licensePlate);
         if (vehicle.isPresent()
@@ -101,4 +101,6 @@ public class VehicleService {
         }
         return false;
     }
+
+ */
 }
