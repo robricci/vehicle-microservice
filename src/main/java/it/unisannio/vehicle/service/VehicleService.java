@@ -19,14 +19,14 @@ public class VehicleService {
     private final Logger logger = LoggerFactory.getLogger(VehicleService.class);
 
     private VehicleRepository vehicleRepository;
-    private MovingService movingService;
-    private TripService tripService;
+   // private MovingService movingService;
+   // private TripService tripService;
 
     @Autowired
-    public VehicleService(VehicleRepository vehicleRepository, MovingService movingService, TripService tripService) {
+    public VehicleService(VehicleRepository vehicleRepository/*, MovingService movingService, TripService tripService*/) {
         this.vehicleRepository = vehicleRepository;
-        this.movingService = movingService;
-        this.tripService = tripService;
+       // this.movingService = movingService;
+        //this.tripService = tripService;
     }
 
     public List<VehicleDTO> getVehiclesInfo() {
@@ -92,7 +92,7 @@ public class VehicleService {
                             vehicle.get().getRide().setCurrentStation(sta);
                             vehicle.get().getRide().setInitialWaitingDate(new Date());
                             this.vehicleRepository.save(vehicle.get());
-                            this.movingService.manualDisplacementNotification(licensePlate, currentStation, vehicle.get().getRide().getCurrentStation());
+                            //this.movingService.manualDisplacementNotification(licensePlate, currentStation, vehicle.get().getRide().getCurrentStation());
                             return true;
                         }
                     }
